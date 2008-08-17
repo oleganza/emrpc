@@ -1,0 +1,22 @@
+EMRPC is a EventMachine-based remote procedure call library.
+It looks very much like DRb, but is much more efficient and provides
+asynchronous interface along with blocking synchronous interface. 
+
+MIT License.
+Author: Oleg Andreev <oleganza@gmail.com>
+
+HELLO WORLD
+
+  class HelloWorld
+    def action
+      "Hello!"
+    end
+  end
+    
+  server = EMRPC::Server.new(:host => '0.0.0.0', 
+                             :port => 9000, 
+                             :object => HelloWorld.new)
+  EM::run { server.run }
+  
+
+    

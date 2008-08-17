@@ -1,0 +1,10 @@
+.DS_Store
+test/storages/*
+coverage
+rdoc/*
+TAGS
+*.swp
+pkg
+emrpc.gemspec
+spec/temp
+spec/temp/*
