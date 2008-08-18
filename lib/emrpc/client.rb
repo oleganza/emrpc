@@ -1,7 +1,7 @@
 module EMRPC
   class Client
     DEFAULT_TIMEOUT     = 5 # 5 sec.
-    DEFAULT_PROTOCOL    = ClientProtocol # Default EventMachine connection protocol
+    DEFAULT_PROTOCOL    = :ClientProtocol # Default EventMachine connection protocol
     DEFAULT_CONNECTIONS = 10 # 10 threads can operate concurrently
     
     attr_reader :host, :port, :protocol, :timeout, :connections

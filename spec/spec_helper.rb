@@ -39,6 +39,16 @@ module Fixtures
   end
 end
 
+module ThreadHelpers
+  def create_threads(n, abort_on_exception = false, &blk)
+    Array.new(n) do 
+      t = Thread.new(&blk)
+      t.abort_on_exception = abort_on_exception
+      t
+    end
+  end
+end
+
 # Runs eventmachine reactor in a child thread,
 # waits 0.5 sec. in a current thread.
 # Returns child thread.
