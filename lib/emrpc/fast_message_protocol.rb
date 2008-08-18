@@ -95,5 +95,17 @@ module EMRPC
       def log
       end
     end
-  end  
-end
+  end # module FastMessageProtocol
+  
+  # Allows to use send_message/receive_message without 
+  # a knowledge of the particular messaging protocol.
+  module FastMessageProtocolAdapter
+    def send_message(msg)
+      send_fast_message(msg)
+    end
+    def receive_fast_message(msg)
+      receive_message(msg)
+    end
+  end
+  
+end # EMRPC
