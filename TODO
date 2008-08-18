@@ -1,0 +1,7 @@
+reconnecting client
+rack http server & http client
+self marshalling
+objects' marshalling using timed references
+unix sockets interface
+resource discovery
+ring/chord protocol
