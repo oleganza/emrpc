@@ -12,8 +12,6 @@ end
 
 include FileUtils
 
-NAME = "emrpc"
-
 require "lib/emrpc/version"
 
 def sudo
@@ -39,14 +37,30 @@ task :default => :specs
 
 task :emrpc => [:clean, :rdoc, :package]
 
+RUBY_FORGE_PROJECT  = "emrpc"
+PROJECT_URL         = "http://strokedb.com"
+PROJECT_SUMMARY     = "Efficient RPC library with evented and blocking APIs. In all ways better than DRb."
+PROJECT_DESCRIPTION = PROJECT_SUMMARY
+
+AUTHOR = "Oleg Andreev"
+EMAIL  = "oleganza@gmail.com"
+
+GEM_NAME    = "emrpc"
+PKG_BUILD   = ENV['PKG_BUILD'] ? '.' + ENV['PKG_BUILD'] : ''
+GEM_VERSION = EMRPC::VERSION + PKG_BUILD
+
+RELEASE_NAME    = "REL #{GEM_VERSION}"
+
+require "extlib/tasks/release"
+
 spec = Gem::Specification.new do |s|
-  s.name         = NAME
-  s.version      = EMRPC::VERSION
+  s.name         = GEM_NAME
+  s.version      = GEM_VERSION
   s.platform     = Gem::Platform::RUBY
-  s.author       = "Oleg Andreev"
-  s.email        = "oleganza@gmail.com"
-  s.homepage     = "http://strokedb.com"
-  s.summary      = "Efficient RPC library with evented and blocking APIs. In all ways better than DRb."
+  s.author       = AUTHOR
+  s.email        = EMAIL
+  s.homepage     = PROJECT_URL
+  s.summary      = PROJECT_SUMMARY
   s.bindir       = "bin"
   s.description  = s.summary
   s.executables  = %w( )
@@ -63,7 +77,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency "rake"
   s.add_dependency "rspec"
   # Requirements
-  s.requirements << "You need to install json (or json_pure), yaml, rack gems to use related features."
+  s.requirements << "You need to install the json (or json_pure), yaml, rack gems to use related features."
   s.required_ruby_version = ">= 1.8.4"
 end
 
