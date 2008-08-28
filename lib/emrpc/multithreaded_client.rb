@@ -5,11 +5,12 @@ module EMRPC
     attr_reader :pool, :backends, :timeout
     # Options:
     #   :backends - an array of backends implementing send(meth, *args) method.
+    #   :backend - specify a single backend instead of array of :backends (just a friendly shortcut)
     #   :queue - an optional queue object (default is Queue.new from the standard library)
     #   :timeout - an optional timeout in seconds (default is 5 seconds)
     #   
     def initialize(options)
-      @backends = options[:backends] or raise "No backends supplied!"
+      @backends = options[:backend] && [options[:backend]] || options[:backends] or raise "No backends supplied!"
       @pool     = options[:queue] || ::Queue.new
       @timeout  = options[:timeout] || 5
       @timeout_thread = Thread.new { timer_action! }

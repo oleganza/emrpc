@@ -32,7 +32,7 @@ describe MultithreadedClient, " with PoolTimeout" do
         sleep 0.5
       end
     end
-    @long_client = MultithreadedClient.new(:backends => [ @long_backend ], :timeout => 1)
+    @long_client = MultithreadedClient.new(:backend => @long_backend, :timeout => 1)
   end
   
   it "should raise ThreadTimeout" do
