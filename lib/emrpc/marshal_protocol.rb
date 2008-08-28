@@ -21,7 +21,7 @@ module EMRPC
       EOF
       mod
     end
-    
+
     # Prevent direct inclusion by accident.
     def self.included(base)
       raise "#{self} cannot be included directly! Create a module using #{self}.new(marshal_const)."

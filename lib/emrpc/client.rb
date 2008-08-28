@@ -15,12 +15,12 @@ module EMRPC
     end
     
     def initialize(options = {})
-      @host     = options[:host]
-      @port     = options[:port]
+      @host     = options[:host] or raise ":host required!"
+      @port     = options[:port] or raise ":port required!"
       @timeout  = options[:timeout] || DEFAULT_TIMEOUT
       @protocol = options[:protocol] || DEFAULT_PROTOCOL 
-      @connections = Array.new(options[:connections] || DEFAULT_CONNECTIONS) do 
-        ClientConnection.new(@protocol)
+      @connections = Array.new(options.delete(:connections) || DEFAULT_CONNECTIONS) do 
+        ClientConnection.new(options)
       end
     end
   

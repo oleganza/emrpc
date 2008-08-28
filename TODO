@@ -1,7 +1,8 @@
 reconnecting client
 rack http server & http client
-self marshalling
-objects' marshalling using timed references
+object serialization:
+  self (special case, return reference to the running )
+  other
 unix sockets interface
 resource discovery
 ring/chord protocol

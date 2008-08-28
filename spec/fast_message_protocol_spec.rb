@@ -54,7 +54,7 @@ describe FastMessageProtocol do
   end
   
   it "should handle protocol errors" do
-    pending "Add message size limit!"
+    pending "Add message size limit and specs!"
   end
   
 end

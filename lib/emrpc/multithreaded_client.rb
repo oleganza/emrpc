@@ -12,18 +12,18 @@ module EMRPC
         @pool.push(backend)
       end
     end
-    
-    def send_message(meth, args, blk)
+        
+    def send(meth, *args, &blk)
       start = Time.now
       # wait for the available connections here
-      while :timeout == (backend = @pool.pop)
+      while :timeout == (backend = @pool.shift)
         seconds = Time.now - start
         if seconds > @timeout
           raise PoolTimeout, "Thread #{Thread.current} waited #{seconds} seconds for backend connection in a pool. Pool size is #{@backends.size}. Maybe too many threads are running concurrently. Increase the pool size or decrease the number of threads."
         end
       end
       begin
-        backend.send_message(meth, args, blk)
+        backend.send(meth, *args, &blk)
       ensure # Always push backend to a pool after using it!
         @pool.push(backend)
       end
