@@ -3,6 +3,11 @@ module EMRPC
   class PoolTimeout < StandardError; end
   class MultithreadedClient
     attr_reader :pool, :backends, :timeout
+    # Options:
+    #   :backends - an array of backends implementing send(meth, *args) method.
+    #   :queue - an optional queue object (default is Queue.new from the standard library)
+    #   :timeout - an optional timeout in seconds (default is 5 seconds)
+    #   
     def initialize(options)
       @backends = options[:backends] or raise "No backends supplied!"
       @pool     = options[:queue] || ::Queue.new
@@ -12,10 +17,12 @@ module EMRPC
         @pool.push(backend)
       end
     end
-        
+    
     def send(meth, *args, &blk)
       start = Time.now
       # wait for the available connections here
+      # if @timeout_thread sent a :timeout message thru the queue, 
+      # be ready to raise a PoolTimeout exception.
       while :timeout == (backend = @pool.shift)
         seconds = Time.now - start
         if seconds > @timeout
@@ -23,6 +30,7 @@ module EMRPC
         end
       end
       begin
+        # Backend can throw its own exceptions which must be caught somewhere outside.
         backend.send(meth, *args, &blk)
       ensure # Always push backend to a pool after using it!
         @pool.push(backend)

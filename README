@@ -23,6 +23,22 @@ HELLO WORLD
   client = EMRPC::Client.new(:host => "localhost", :port => 9000)
   client.action == "Hello!" #=> true
 
+
+
+BLOCKING API
+
+  API consists of the several proxy layers. 
+  Each layer relies on #send(math, *args, &blk) method.
+  When the #send call is done, current thread is blocked 
+  until backend responds or timeout exception is raised.
+  
+  MultithreadedClient implements abstract connections pooling 
+  mechanism.
+
+ASYNCHRONOUS API
+
+  
+
   
 THE MIT LICENSE
 
