@@ -36,9 +36,12 @@ BLOCKING API
   mechanism.
 
 ASYNCHRONOUS API
-
   
-
+  Async API uses #send method to send messages and a reposnder object
+  responding to #on_return(result) and #on_raise(exception), which
+  are called when result is ready or exception was raised.
+  
+  
   
 THE MIT LICENSE
 

@@ -4,16 +4,20 @@ module EMRPC
   class MultithreadedClient
     attr_reader :pool, :backends, :timeout
     # Options:
-    #   :backends - an array of backends implementing send(meth, *args) method.
-    #   :backend - specify a single backend instead of array of :backends (just a friendly shortcut)
-    #   :queue - an optional queue object (default is Queue.new from the standard library)
-    #   :timeout - an optional timeout in seconds (default is 5 seconds)
+    #   :backends  - an array of backends implementing send(meth, *args) method.
+    #   :backend   - specify a single backend instead of array of :backends (just a friendly shortcut)
+    #   :queue     - an optional queue object (default is Queue.new from the standard library)
+    #   :timeout   - an optional timeout in seconds (default is 5 seconds)
+    #   :timer     - optional proc, which accepts two arguments: +timeout+ and 
+    #                another proc to be called every +timeout+ seconds.
+    #                Default is Proc.new{|t,p| Thread.new{sleep(t); p.call}}.
     #   
     def initialize(options)
       @backends = options[:backend] && [options[:backend]] || options[:backends] or raise "No backends supplied!"
       @pool     = options[:queue] || ::Queue.new
       @timeout  = options[:timeout] || 5
-      @timeout_thread = Thread.new { timer_action! }
+      @timer    = options[:timer] || Proc.new {|timeout, proc| Thread.new{sleep(timeout); proc.call} }
+      @timeout_thread = @timer.call(@timeout, method(:timer_action!))
       @backends.each do |backend|
         @pool.push(backend)
       end
@@ -41,7 +45,6 @@ module EMRPC
     # Pushes :timeout message to a queue for all 
     # the threads in a backlog every @timeout seconds.
     def timer_action!
-      sleep @timeout
       @pool.num_waiting.times { @pool.push(:timeout) }
     end
     
