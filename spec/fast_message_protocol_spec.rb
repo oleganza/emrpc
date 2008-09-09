@@ -21,7 +21,7 @@ describe FastMessageProtocol do
         @messages = []
         super
       end
-      def receive_fast_message(msg)
+      def receive_message(msg)
         @messages << msg
       end
     end
@@ -47,7 +47,7 @@ describe FastMessageProtocol do
     oleg = @oleganza.new
     yr = @yrashk.new
     yr.peer = oleg
-    messages.each {|m| yr.send_fast_message(m) }
+    messages.each {|m| yr.send_message(m) }
     yr.flush_buffer
     
     oleg.messages.should == messages

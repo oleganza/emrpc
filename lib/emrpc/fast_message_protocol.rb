@@ -14,7 +14,7 @@ module EMRPC
     LENGTH_FORMAT = "N".freeze
     LENGTH_FORMAT_LENGTH = 4
     
-    def send_fast_message(data)
+    def send_message(data)
       size = data.size
       packed_size = [size].pack(LENGTH_FORMAT)
       send_data packed_size
@@ -39,7 +39,7 @@ module EMRPC
             @fmp_data = ""
             @fmp_size = 0
             @fmp_size_chunk = ""
-            receive_fast_message(data)
+            receive_message(data)
             break
           else
             # Received more, than expected.
@@ -52,7 +52,7 @@ module EMRPC
             @fmp_size = 0
             @fmp_size_chunk = ""
             log { "Returning #{data.size} bytes (#{data[0..32]})"  }
-            receive_fast_message(data)
+            receive_message(data)
             # (see while true: processing next chunk without recursive calls)
           end
 
@@ -96,16 +96,4 @@ module EMRPC
       end
     end
   end # module FastMessageProtocol
-  
-  # Allows to use send_message/receive_message without 
-  # a knowledge of the particular messaging protocol.
-  module FastMessageProtocolAdapter
-    def send_message(msg)
-      send_fast_message(msg)
-    end
-    def receive_fast_message(msg)
-      receive_message(msg)
-    end
-  end
-  
 end # EMRPC

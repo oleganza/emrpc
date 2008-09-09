@@ -7,11 +7,11 @@ module EMRPC
       @mbox = options[:mbox] || Queue.new
     end
     
-    def send(*args, &blk)
-      @backend.send_from(self, *args, &blk)
+    def send(*args)
+      @backend.send_from(self, *args)
       @mbox.shift == :return ? (return @mbox.shift) : (raise @mbox.shift)
     end
-    
+        
     def on_return(result)
       @mbox.push(:return)
       @mbox.push(result)
@@ -21,5 +21,6 @@ module EMRPC
       @mbox.push(:raise)
       @mbox.push(exception)
     end
+    
   end
 end

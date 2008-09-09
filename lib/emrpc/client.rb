@@ -6,7 +6,7 @@ module EMRPC
     
     attr_reader :host, :port, :protocol, :timeout, :connections
     # Create a regular object holding configuration, 
-    # but returns a method proxy.
+    # but return a method proxy.
     def self.new(*args, &blk)
       client = super(*args)
       backend = MultithreadedClient.new(:backends => client.connections, 

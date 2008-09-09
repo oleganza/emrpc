@@ -3,11 +3,12 @@ module EMPRC
   class RequestTimeout < StandardError; end unless defined? RequestTimeout
   class BackendBusy < StandardError; end unless defined? BackendBusy
   
+  # This module must be mixed into backend class.
   module WithTimeout
     def initialize(options)
       @timeout        = options[:timeout] || 5
-      @timer          = options[:timer] || Proc.new {|interval, proc| EventMachine::PeriodicTimer.new(interval, &proc)}
-      @timeout_thread = @timer.call([ @timeout/5, 1 ].max, method(:timer_action))
+      @timer          = options[:timer] || Timers::EVENTED
+      @timeout_thread = @timer.call([ @timeout/2, 1 ].max, method(:timer_action))
       @callback_proxy = CallbackProxy.new
       super
     end

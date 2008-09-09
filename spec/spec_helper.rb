@@ -3,8 +3,33 @@ $LOAD_PATH.unshift( File.expand_path(File.join(File.dirname(__FILE__), '..', 'li
 require 'emrpc'
 include EMRPC
 
-EM_HOST =  ENV['EM_HOST'] || "127.0.0.1"
-EM_PORT = (ENV['EM_PORT'] || 4567).to_i
+require 'socket'
+
+module AddressHelpers
+  def em_host(host = ENV['EM_HOST'])
+    host || '127.0.0.1'
+  end
+
+  def em_port(port = ENV['EM_PORT'])
+    (port || 45_678).to_i
+  end
+  
+  def em_random_port
+    rand(10_000) + 40_000
+  end
+
+  def em_proto(proto = ENV['EM_PROTO'])
+    proto || 'emrpc'
+  end
+
+  def em_addr(proto = em_proto, host = em_host, port = em_port)
+    "#{proto}://#{host}:#{port}"
+  end
+end
+
+class Object
+  include AddressHelpers
+end
 
 module Fixtures
   class Person
@@ -17,7 +42,7 @@ module Fixtures
   class Paris
     attr_accessor :people, :options
   
-    def initialize(ppl, options = {})
+    def initialize(ppl = 2, options = {})
       @options = options
       @people = Array.new(ppl){ Person.new }
       @name = "Paris"
@@ -30,6 +55,10 @@ module Fixtures
     def visit(person)
       people << person
       people.size
+    end
+    
+    def run_slow(time = 2)
+      sleep(time)
     end
     
     def run_exception
@@ -55,10 +84,13 @@ end
 #
 module EventMachine
   def self.run_in_thread(delay = 0.5, &blk)
+    blk = proc{} unless blk
     t = Thread.new do
-      EventMachine.run(&blk) 
+      EventMachine.run(&blk)
     end
     sleep delay
     t
   end
 end
+
+$em_thread ||= EventMachine.run_in_thread

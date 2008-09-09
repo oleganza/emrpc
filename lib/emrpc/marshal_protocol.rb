@@ -15,16 +15,19 @@ module EMRPC
         end
         def receive_message(msg)
           receive_marshalled_message(#{const_name}.load(msg))
-        rescue => e
+        rescue Exception => e
           rescue_marshal_error(e)
         end
       EOF
       mod
     end
-
-    # Prevent direct inclusion by accident.
+    
+    DEFAULT_CONST = Marshal
+    
+    # By default, include Marshal-based serialization module.
     def self.included(base)
-      raise "#{self} cannot be included directly! Create a module using #{self}.new(marshal_const)."
+      base.send(:include, new(DEFAULT_CONST))
+      #STDERR.puts "# Info: #{self} included into #{base} directly: using #{self}.new(#{DEFAULT_CONST})."
     end
   end
 end

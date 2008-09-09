@@ -1,16 +1,22 @@
 module EMRPC
   class Server
-    attr_accessor :host, :port, :object, :protocol
+    include Util
+    DEFAULT_PROTOCOL_STACK = [
+      FastMessageProtocol,
+      MarshalProtocol.new(Marshal),
+      ServerProtocol
+    ]
+    attr_accessor :host, :port, :object, :protocol, :protocol_stack
     def initialize(options = {})
       @host   = options[:host]
       @port   = options[:port]
       @object = options[:object]
-      @protocol = options[:protocol] || ServerProtocol
+      @protocol = options[:protocol] || combine_modules(*( options[:protocol_stack] || DEFAULT_PROTOCOL_STACK ))
     end
     
     def run
       EventMachine.start_server(@host, @port, @protocol) do |conn|
-        conn.__served_object = @object
+        conn.backend = @object
       end
     end
     

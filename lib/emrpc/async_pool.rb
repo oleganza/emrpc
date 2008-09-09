@@ -21,8 +21,8 @@ module EMRPC
       @backlog  = options[:backlog] || ::Array.new
       @worklog  = options[:worklog] || ::Array.new
       @timeout  = options[:timeout] || 5
-      @timer    = options[:timer] || Proc.new {|timeout, proc| Thread.new{sleep(timeout); proc.call} }
-      @timer_thread = @timer.call(@timeout, method(:timer_action!))
+      @timer    = options[:timer] || Timers::EVENTED
+      @timer_thread = @timer.call([ @timeout/2, 1 ].max, method(:timer_action!))
       @backends_with_callbacks = @backends.map{|b| BackendWithCallback.new(self, b)}
       @backends_with_callbacks.each do |backend|
         @pool.push(backend)
@@ -35,11 +35,6 @@ module EMRPC
       else
         @backlog.push([Time.now.to_i, callback, send_args, blk])
       end
-    end
-    
-    # Delegates call to #send_from using default callback.
-    def send(*send_args, &blk)
-      send_from(@callback, *send_args, &blk)
     end
     
     def on_return(backend, callback, result)
