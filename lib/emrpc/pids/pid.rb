@@ -41,7 +41,7 @@ module EMRPC
           EventMachine.stop_server(@_em_server_signature)
         end
         @connected_pids.each do |uuid, pid|
-          pid.disconnected(self)
+          pid.send(:disconnected,self)
         end
         @connected_pids.clear
         @killed = true
