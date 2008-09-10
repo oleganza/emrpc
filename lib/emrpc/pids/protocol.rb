@@ -43,8 +43,10 @@ module EMRPC
         if @remote_pid
           # pid has been succesfully connected one day, but connection was lost.
           # we don't put +_unregister_pid+ into +connection_lost+ callback to avoid unneccessary +super+ calls in callbacks.
-          @local_pid._unregister_pid(@remote_pid)
-          @local_pid.disconnected(@remote_pid)
+          rpid = @remote_pid
+          @remote_pid = nil
+          @local_pid._unregister_pid(rpid)
+          @local_pid.disconnected(rpid)
         else
           # there were no connection, connecting failed. 
           @local_pid.connecting_failed(self)
