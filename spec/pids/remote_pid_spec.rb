@@ -64,13 +64,46 @@ describe RemotePid do
         @rpid.uuid.should == @uuid
       end
       
+      it "should not have options" do
+        @rpid.options.should be_nil
+      end
+      
+      it "should not have _connection" do
+        @rpid._connection.should be_nil
+      end
+      
       it_should_behave_like "inspectable"
       
       it "should have 'NO CONNECTION' text in inspect" do
         @rpid.inspect.should =~ /NO CONNECTION/
       end
-    end
-  end
+      
+      describe "#_initialize_pids_recursively_d4d309bd" do
+        before(:each) do
+          @options = {:uuid => @uuid}
+          @hosted_rpid = mock('Hosted remote pid', 
+                              :options => @options, 
+                              :_connection => @connection)
+          @host_pid = mock('Host pid')
+          @host_pid.stub!(:find_pid)
+          @host_pid.should_receive(:find_pid).once.with(@uuid).and_return(@hosted_rpid)
+          @rpid._initialize_pids_recursively_d4d309bd!(@host_pid)
+        end
+        
+        it "should set options" do
+          @rpid.options.should == @options
+        end
+        
+        it "should set _connection" do
+          @rpid._connection.should == @connection
+        end
+        
+        it "should keep uuid" do
+          @rpid.uuid.should == @uuid
+        end
+      end # _initialize_pids_recursively_d4d309bd!
+    end # loaded
+  end # marshal
   
   
   describe "#kill" do
@@ -110,4 +143,5 @@ describe RemotePid do
       @rpid.send(:meth, :arg1, :arg2)
     end
   end
+    
 end
