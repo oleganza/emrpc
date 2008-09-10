@@ -19,6 +19,7 @@ describe Pid do
     @pid = @parent = @pid_class.new
   end
   
+  
   describe "any local pid", :shared => true do
     
     it "should be kind of Pid module" do
@@ -37,6 +38,7 @@ describe Pid do
       @pid.options.should be_kind_of(Hash)
     end
   end
+
   
   describe "new instance" do
     it_should_behave_like "any local pid"
@@ -45,6 +47,7 @@ describe Pid do
       @pid.connected_pids.should be_empty
     end
   end
+
 
   describe "spawned from another pid" do
     before(:each) do
@@ -60,8 +63,8 @@ describe Pid do
     end
   end
   
+  
   describe "tcp_spawned pid" do
-    
     before(:all) do
       @parent = @pid
       @proto = em_proto
@@ -93,7 +96,6 @@ describe Pid do
     end
     
     describe "killed" do
-      
       before(:each) do
         a = mock("pid1")
         b = mock("pid2")
@@ -116,11 +118,10 @@ describe Pid do
       
       it "should take server down" do
         lambda { TCPSocket.new(@host, @port) }.should raise_error(Errno::ECONNREFUSED)
-      end
-      
+      end      
     end # killed
-    
   end # tcp_spawned
+
 
   describe "#connect" do
     

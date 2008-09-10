@@ -1,7 +1,7 @@
 module EMRPC
   module Pids
-    class RemotePid # we don't use blank slate intentionally < BlankSlate
-      attr_accessor :_connection, :options
+    class RemotePid # we don't use BlankSlate intentionally for the sake of specs passing.
+      attr_accessor :_connection, :options, :killed
       attr_accessor :uuid
 
       def initialize(conn, options)
@@ -11,7 +11,6 @@ module EMRPC
       end
 
       def method_missing(*args)
-        p [self, :method_missing, args]
         send(*args)
       end
 
@@ -42,7 +41,10 @@ module EMRPC
         pid = host_pid.find_pid(@uuid)
         initialize(pid._connection, pid.options)
       end
-
+        
+      def killed?
+        @killed
+      end
     end # RemotePid
   end # Pids
 end # EMRPC
