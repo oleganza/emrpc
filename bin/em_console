@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+development_lib = File.join(File.dirname(__FILE__), '..', 'lib')
+if File.exists?(development_lib + '/emrpc.rb')
+  $LOAD_PATH.unshift(development_lib).uniq!
+else
+  require 'rubygems'
+end
+
+require 'emrpc'
+require 'emrpc/console'
+
+include EMRPC::Console
+IRB.start

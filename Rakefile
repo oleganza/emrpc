@@ -63,7 +63,7 @@ spec = Gem::Specification.new do |s|
   s.summary      = PROJECT_SUMMARY
   s.bindir       = "bin"
   s.description  = s.summary
-  s.executables  = %w( )
+  s.executables  = %w( em_console )
   s.require_path = "lib"
   s.files        = %w( README Rakefile TODO ) + Dir["{docs,bin,spec,lib,examples,script}/**/*"]
 
