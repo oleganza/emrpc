@@ -24,9 +24,9 @@ module EMRPC
         prefix, options = msg
         lpid = @local_pid
         prefix == :handshake or return lpid.handshake_failed(self, msg)
-        @remote_pid = rpid = RemotePid.new(self, options)
+        rpid = RemotePid.new(self, options)
         # we don't put +_register_pid+ into +connected+ callback to avoid unneccessary +super+ calls in callbacks.
-        lpid._register_pid(rpid)
+        @remote_pid = rpid = lpid._register_pid(rpid)
         lpid.connected(rpid)
         # restore receive_marshalled_message
         class <<self

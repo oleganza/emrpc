@@ -1,5 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-
+# Issues with evented networking testing:
+# 1. TCP server is started and stopped asynchronously, so it requires to
+#    wait 0.1 sec between start/stop actions to test normal operations order.
+# 2. 
+#
 describe Pid do
   
   before(:all) do
@@ -46,6 +50,32 @@ describe Pid do
     it "should have empty list of connected pids" do
       @pid.connected_pids.should be_empty
     end
+  end
+
+
+  describe "#connect" do
+    
+    before(:all) do
+      @server_addr = em_addr
+      @server = @parent.tcp_spawn(@server_addr, @pid_class)
+      @rpid_mock = duck_type(:uuid, :_connection, :options)
+      @parent.should_not_receive(:connecting_failed)
+      @parent.should_receive(:_register_pid).once.with(@rpid_mock)
+      @parent.should_receive(:connected).once.with(@rpid_mock)
+      @connection = @parent.connect(@server_addr)
+    end
+    
+    after(:all) do
+      @server.kill
+    end
+    
+    it "should wait until connection is established" do
+      sleep 0.1
+    end
+    it "should verify mocks" do
+      # this page is intentionally left blah-blah-blah
+    end
+    
   end
 
 
@@ -118,22 +148,9 @@ describe Pid do
       
       it "should take server down" do
         lambda { TCPSocket.new(@host, @port) }.should raise_error(Errno::ECONNREFUSED)
-      end      
+      end
     end # killed
   end # tcp_spawned
-
-
-  describe "#connect" do
-    
-    before(:all) do
-      @server_addr = em_addr
-      @parent.tcp_spawn(em_addr)
-    end
-    
-    after(:all) do
-      
-    end
-    
-  end
   
+    
 end
