@@ -14,13 +14,13 @@ module EMRPC
           alias receive_marshalled_message_normal receive_marshalled_message
           alias receive_marshalled_message        receive_marshalled_message_first
         end
-        send_marshalled_message([:hello, @local_pid.options])
+        send_marshalled_message([:handshake, @local_pid.options])
       end
       
       def receive_marshalled_message_first(msg)
         prefix, options = msg
         lpid = @local_pid
-        prefix == :hello or return lpid.hello_failed(self, msg)
+        prefix == :handshake or return lpid.handshake_failed(self, msg)
         @remote_pid = rpid = RemotePid.new(self, options)
         # we don't put +_register_pid+ into +connected+ callback to avoid unneccessary +super+ calls in callbacks.
         lpid._register_pid(rpid)

@@ -12,7 +12,7 @@ describe DefaultCallbacks do
     [:connecting_failed, 1],
     [:on_return,         1],
     [:on_raise,          1],
-    [:hello_failed,      2]
+    [:handshake_failed,  2]
   ].each do |(meth, arity)|
     
     a = arity == 1 ? 'one argument' : "#{arity} arguments"

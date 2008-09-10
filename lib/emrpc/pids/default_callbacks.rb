@@ -30,7 +30,7 @@ module EMRPC
 
       # Called when pid responds incorrectly.
       # Normally, this should not be called.
-      def hello_failed(conn, msg)
+      def handshake_failed(conn, msg)
         raise "Hello failed in connection #{conn} with message #{msg.inspect} (expected [:hello, {:uuid => <UUID>}])"
       end
       

@@ -18,6 +18,7 @@ describe Protocol do
     local_pid.instance_eval do
       stub!(:_register_pid).and_return(nil)
       stub!(:connected).and_return(nil)
+      stub!(:handshake_failed).and_return(nil)
     end
     
     @remote_pid = remote_pid = mock("RemotePid", :uuid => @remote_uuid, 
@@ -32,6 +33,7 @@ describe Protocol do
       rpid = duck_type(:uuid, :_connection, :options)
       @local_pid.should_receive(:_register_pid).once.with(rpid)
       @local_pid.should_receive(:connected).once.with(rpid)
+      @connection.should_receive(:send_marshalled_message).once.with([:handshake, @local_pid.options])
       #
       # Init
       #
@@ -39,7 +41,7 @@ describe Protocol do
       @connection.local_pid = @local_pid
       @connection.post_init
       @connection.connection_completed
-      @connection.receive_marshalled_message([:hello, @remote_pid.options])
+      @connection.receive_marshalled_message([:handshake, @remote_pid.options])
       @rpid = @connection.remote_pid
     end
     
@@ -84,7 +86,7 @@ describe Protocol do
       # Mock expectations
       #
       @local_pid.should_receive(:connecting_failed).once.with(@connection)
-      
+      @connection.should_not_receive(:send_marshalled_message)
       #
       # Init
       #
@@ -98,6 +100,31 @@ describe Protocol do
     it "should not have #remote_pid" do
       @rpid.should be_nil
     end
+  end
+
+
+  describe "failed handshake" do
+    before(:each) do
+      #
+      # Mock expectations
+      #
+      @not_a_handshake = :not_a_handshake
+      @local_pid.should_receive(:handshake_failed).once.with(@connection, @not_a_handshake)
+      @connection.should_receive(:send_marshalled_message).once.with([:handshake, @local_pid.options])
+      #
+      # Init
+      #
+      @connection.address = em_addr.parsed_uri
+      @connection.local_pid = @local_pid
+      @connection.post_init
+      @connection.connection_completed
+      @connection.receive_marshalled_message(@not_a_handshake)
+      @rpid = @connection.remote_pid
+    end
+    
+    it "should not have #remote_pid" do
+      @rpid.should be_nil
+    end    
   end
   
 end
