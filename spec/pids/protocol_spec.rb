@@ -33,7 +33,7 @@ describe Protocol do
       rpid = duck_type(:uuid, :_connection, :options)
       @local_pid.should_receive(:_register_pid).once.with(rpid)
       @local_pid.should_receive(:connected).once.with(rpid)
-      @connection.should_receive(:send_marshalled_message).once.with([:handshake, @local_pid.options])
+      @connection.should_receive(:send_handshake_message).once.with(@local_pid.options)
       #
       # Init
       #
@@ -86,7 +86,7 @@ describe Protocol do
       # Mock expectations
       #
       @local_pid.should_receive(:connecting_failed).once.with(@connection)
-      @connection.should_not_receive(:send_marshalled_message)
+      @connection.should_not_receive(:send_handshake_message)
       #
       # Init
       #
@@ -110,7 +110,7 @@ describe Protocol do
       #
       @not_a_handshake = :not_a_handshake
       @local_pid.should_receive(:handshake_failed).once.with(@connection, @not_a_handshake)
-      @connection.should_receive(:send_marshalled_message).once.with([:handshake, @local_pid.options])
+      @connection.should_receive(:send_handshake_message).once.with(@local_pid.options)
       #
       # Init
       #

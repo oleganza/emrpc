@@ -11,13 +11,16 @@ module EMRPC
       def connection_completed
         # setup single-shot version of receive_marshalled_message
         class <<self
-          alias receive_marshalled_message_normal receive_marshalled_message
-          alias receive_marshalled_message        receive_marshalled_message_first
+          alias receive_marshalled_message receive_handshake_message
         end
-        send_marshalled_message([:handshake, @local_pid.options])
+        send_handshake_message(@local_pid.options)
       end
       
-      def receive_marshalled_message_first(msg)
+      def send_handshake_message(arg)
+        send_marshalled_message([:handshake, arg])
+      end
+      
+      def receive_handshake_message(msg)
         prefix, options = msg
         lpid = @local_pid
         prefix == :handshake or return lpid.handshake_failed(self, msg)
@@ -27,14 +30,14 @@ module EMRPC
         lpid.connected(rpid)
         # restore receive_marshalled_message
         class <<self
-          alias receive_marshalled_message receive_marshalled_message_normal
+          alias receive_marshalled_message receive_regular_message
         end
       end
       
-      def receive_marshalled_message(msg)
+      def receive_regular_message(msg)
         @local_pid._send_dirty(*msg)
       end
-                  
+      
       def rescue_marshal_error(e)
         # FIXME: do something with this!
       end
