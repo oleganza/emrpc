@@ -9,7 +9,7 @@ module EMRPC
       end
       
       def connection_completed
-        # restore receive_marshalled_message
+        # setup single-shot version of receive_marshalled_message
         class <<self
           alias receive_marshalled_message_normal receive_marshalled_message
           alias receive_marshalled_message        receive_marshalled_message_first
@@ -21,7 +21,7 @@ module EMRPC
         prefix, options = msg
         lpid = @local_pid
         prefix == :hello or return lpid.hello_failed(self, msg)
-        @remote_pid = rpid = RemotePid.new(self, lpid, options)
+        @remote_pid = rpid = RemotePid.new(self, options)
         # we don't put +_register_pid+ into +connected+ callback to avoid unneccessary +super+ calls in callbacks.
         lpid._register_pid(rpid)
         lpid.connected(rpid)

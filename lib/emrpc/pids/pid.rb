@@ -3,7 +3,7 @@ module EMRPC
   module Pids
     module Pid
       attr_accessor :uuid, :options, :connected_pids, :killed
-      attr_accessor :_em_server_signature, :_protocol
+      attr_accessor :_em_server_signature, :_protocol, :_bind_address
       include DefaultCallbacks
     
       def initialize(*args, &blk)
@@ -24,8 +24,14 @@ module EMRPC
     
       def tcp_spawn(addr, cls, *args, &blk)
         pid = spawn(cls, *args, &blk)
-        pid._em_server_signature = _em_init(:start_server, addr, pid)
+        pid.bind(addr)
         pid
+      end
+      
+      def bind(addr)
+        raise "Pid is already binded!" if @_em_server_signature
+        @_bind_address = addr.parsed_uri
+        @_em_server_signature = _em_init(:start_server, @_bind_address, self)
       end
     
       # 1. Connect to the pid.
@@ -74,7 +80,7 @@ module EMRPC
       
       # common start_server/connect pattern for eventmachine.
       def _em_init(method, addr, pid)
-        addr = URI.parse(addr) unless addr.is_a?(URI::Generic)
+        addr = addr.parsed_uri
         EventMachine.__send__(method, addr.host, addr.port, _protocol) do |conn|
           conn.local_pid = pid
           conn.address = addr

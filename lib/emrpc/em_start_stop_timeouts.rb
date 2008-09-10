@@ -1,7 +1,8 @@
 # This puts start_server, stop_server calls into the queue to ensure proper delays between them.
-
+# TODO: make this thread-safe by adding mutex lock around access to @servers_m_queue
+#
 module ::EventMachine
-  module EmStartStopTimeouts
+  module EmStartStopTimeouts    
     # Use case: 
     #   started localhost:4005 (signature4005)
     #   stopped signature4005

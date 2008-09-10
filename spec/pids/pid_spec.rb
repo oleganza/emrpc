@@ -1,7 +1,24 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Pid do
-
+  
+  before(:all) do
+    @pid_class = Class.new do 
+      include Pid
+    end
+    @child_class = Class.new do
+      include Pid
+      attr_accessor :a, :b, :c
+      def initialize(a, b)
+        super
+        @a = a
+        @b = b
+        @c = yield(@a, @b)
+      end
+    end
+    @pid = @parent = @pid_class.new
+  end
+  
   describe "any local pid", :shared => true do
     
     it "should be kind of Pid module" do
@@ -21,23 +38,6 @@ describe Pid do
     end
   end
   
-  before(:all) do
-    @pid_class = Class.new do 
-      include Pid
-    end
-    @child_class = Class.new do
-      include Pid
-      attr_accessor :a, :b, :c
-      def initialize(a, b)
-        super
-        @a = a
-        @b = b
-        @c = yield(@a, @b)
-      end
-    end
-    @pid = @pid_class.new
-  end
-  
   describe "new instance" do
     it_should_behave_like "any local pid"
     
@@ -48,7 +48,6 @@ describe Pid do
 
   describe "spawned from another pid" do
     before(:each) do
-      @parent = @pid
       @pid = @parent.spawn(@child_class, 1, 2){|a,b|  a + b + 30 }
     end
     
@@ -118,6 +117,20 @@ describe Pid do
       it "should take server down" do
         lambda { TCPSocket.new(@host, @port) }.should raise_error(Errno::ECONNREFUSED)
       end
+      
+    end # killed
+    
+  end # tcp_spawned
+
+  describe "#connect" do
+    
+    before(:all) do
+      @server_addr = em_addr
+      @parent.tcp_spawn(em_addr)
+    end
+    
+    after(:all) do
+      
     end
     
   end

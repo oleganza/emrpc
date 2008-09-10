@@ -1,17 +1,17 @@
 module EMRPC
   module Pids
-    class RemotePid < BlankSlate
-      attr_accessor :_connection, :_client, :options
+    class RemotePid # we don't use blank slate intentionally < BlankSlate
+      attr_accessor :_connection, :options
       attr_accessor :uuid
 
-      def initialize(conn, client, options)
+      def initialize(conn, options)
         @_connection = conn
-        @_client     = client
         @options     = options
         @uuid        = options[:uuid]
       end
 
       def method_missing(*args)
+        p [self, :method_missing, args]
         send(*args)
       end
 
@@ -23,7 +23,7 @@ module EMRPC
         end
         @_connection.send_marshalled_message(args)
       end
-
+      
       def marshal_dump
         @uuid
       end
@@ -40,7 +40,7 @@ module EMRPC
 
       def _initialize_pids_recursively_d4d309bd!(host_pid)
         pid = host_pid.find_pid(@uuid)
-        initialize(pid._connection, pid._client, pid.options)
+        initialize(pid._connection, pid.options)
       end
 
     end # RemotePid
