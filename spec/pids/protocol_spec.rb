@@ -25,6 +25,26 @@ describe Protocol do
                                                  :options => {:uuid => @remote_uuid})
   end
   
+
+  describe "handshake" do
+    before(:each) do
+      @handshake_args = Object.new # unique object
+      @connection.should_receive(:send_marshalled_message).once.with([:handshake, @handshake_args])
+    end
+    
+    it "should verify handshake format" do
+      @connection.send_handshake_message(@handshake_args)
+    end
+  end
+  
+  
+  describe "broken connection", :shared => true do
+    it "should reset remote_pid on error" do
+      @rpid.should be_nil
+    end
+  end
+  
+  
   describe "successful connection" do
     before(:each) do
       #
@@ -57,7 +77,6 @@ describe Protocol do
       @rpid.options.should == @remote_pid.options
     end
     
-    
     describe "broken" do
       
       before(:each) do
@@ -70,11 +89,10 @@ describe Protocol do
         # Init
         #
         @connection.unbind
+        @rpid = @connection.remote_pid
       end
       
-      it "should reset remote_pid after unbind" do
-        @connection.remote_pid.should be_nil
-      end
+      it_should_behave_like "broken connection"
     end
     
   end
@@ -97,9 +115,7 @@ describe Protocol do
       @rpid = @connection.remote_pid
     end
     
-    it "should not have #remote_pid" do
-      @rpid.should be_nil
-    end
+    it_should_behave_like "broken connection"
   end
 
 
@@ -122,9 +138,7 @@ describe Protocol do
       @rpid = @connection.remote_pid
     end
     
-    it "should not have #remote_pid" do
-      @rpid.should be_nil
-    end    
+    it_should_behave_like "broken connection"
   end
   
 end
