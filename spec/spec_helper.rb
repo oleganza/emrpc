@@ -47,7 +47,6 @@ module Fixtures
       @options = options
       @people = Array.new(ppl){ Person.new }
       @name = "Paris"
-      super
     end
   
     def translate(english_word)

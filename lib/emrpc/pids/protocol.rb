@@ -32,7 +32,6 @@ module EMRPC
         # we don't put +_register_pid+ into +connected+ callback to avoid unneccessary +super+ calls in callbacks.
         @remote_pid = rpid = lpid._register_pid(rpid)
         raise "ACHTUNG! rpid is nil!" if rpid == nil
-        lpid.connected(rpid)
         # restore receive_marshalled_message
         class <<self
           alias_method :receive_marshalled_message, :receive_regular_message
@@ -40,6 +39,7 @@ module EMRPC
         unless @__sent_handshake # server-side
           send_handshake_message(@local_pid.options)
         end
+        lpid.connected(rpid)
       end
       
       def receive_regular_message(msg)

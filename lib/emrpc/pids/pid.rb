@@ -82,8 +82,16 @@ module EMRPC
       end
     
       def inspect
-        return "#<Pid:#{@uuid} KILLED>" if @killed
-        "#<Pid:#{@uuid} connected to #{connection_uuids.inspect}>"
+        return "#<Pid:#{_uid} KILLED>" if @killed
+        "#<Pid:#{_uid} connected to #{connection_uuids.map{|u|_uid(u)}.inspect}>"
+      end
+    
+      def ==(other)
+        (other.is_a?(RemotePid) || other.is_a?(Pid)) && other.uuid == @uuid
+      end
+      
+      def _uid(uuid = @uuid)
+        uuid && uuid[0,6]
       end
     
       #

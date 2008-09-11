@@ -32,16 +32,24 @@ module EMRPC
       end
       
       def inspect
-        return "#<RemotePid:#{@uuid} KILLED>" if @killed
-        return "#<RemotePid:#{@uuid} NO CONNECTION!>" unless @_connection
-        "#<RemotePid:#{@uuid} on #{@_connection.address} connected with local pid #{@_connection.local_pid.uuid}>"
+        return "#<RemotePid:#{_uid} KILLED>" if @killed
+        return "#<RemotePid:#{_uid} NO CONNECTION!>" unless @_connection
+        "#<RemotePid:#{_uid} on #{@_connection.address} connected with local pid #{@_connection.local_pid._uid}>"
+      end
+      
+      def _uid(uuid = @uuid)
+        uuid && uuid[0,6]
       end
 
       def _initialize_pids_recursively_d4d309bd!(host_pid)
         pid = host_pid.find_pid(@uuid)
         initialize(pid._connection, pid.options)
       end
-        
+      
+      def ==(other)
+        (other.is_a?(RemotePid) || other.is_a?(Pid)) && other.uuid == @uuid
+      end
+      
       def killed?
         @killed
       end

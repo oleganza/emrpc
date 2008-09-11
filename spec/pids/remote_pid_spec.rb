@@ -6,7 +6,7 @@ describe RemotePid do
     @uuid = "my-uuid"
     @connection = mock('Protocol', :send_marshalled_message => nil, 
                                    :address => ::URI.parse(em_addr),
-                                   :local_pid => mock('pid', :uuid => "local-uuid"))
+                                   :local_pid => mock('pid', :uuid => "local-uuid", :_uid => "short"))
     @options = {:uuid => @uuid}
     @cls = RemotePid
     @rpid = @cls.new(@connection, @options)
