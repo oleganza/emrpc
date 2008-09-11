@@ -36,7 +36,6 @@ module Fixtures
     attr_accessor :name
     def initialize(options = {})
       @name = options[:name]
-      super
     end
   end
 

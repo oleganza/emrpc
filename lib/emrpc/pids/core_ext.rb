@@ -15,6 +15,9 @@ module EMRPC
     end # ::Object
     
     class ::String
+      def _initialize_pids_recursively_d4d309bd!(host_pid)
+      end
+      
       def parsed_uri
         URI.parse(self)
       end

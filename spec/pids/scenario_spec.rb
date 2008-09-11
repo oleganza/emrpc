@@ -8,7 +8,7 @@ describe Pids, "chat" do
       include Pid
       attr_accessor :chat, :notices, :log
       def initialize(*args)
-        super
+        super(*args)
         @notices = []
         @log = []
       end
@@ -19,13 +19,12 @@ describe Pids, "chat" do
         @notices << msg
       end
       def receive(from, msg)
-        p [:chatter, :receive, from, msg]
-        @log << msg
+        #p [:chatter, :receive, from, msg]
+        @log << [from, msg]
       end
       def write(msg)
-        @log << msg
-        p [:chatter, :write, msg, @chat]
-        @chat.write(self, msg)
+        @log << [@name, msg]
+        @chat.write(self, @name, msg)
       end
     end
         
@@ -33,39 +32,35 @@ describe Pids, "chat" do
       include Pid
       def initialize
         super
-        @chatter = []
+        @chatters = []
       end
       def connected(pid)
-        p [:chat, :connected, pid]
+        #p [:chat, :connected, pid]
         @chatters << pid
       end
       def disconnected(pid)
-        p [:chat, :disconnected, pid]
+        #p [:chat, :disconnected, pid]
         @chatters.delete(pid)
-        broadcast(:notice, "Chatter #{pid.uuid} disconnected!")
+        broadcast(:notice, self, "Chatter #{pid.uuid} disconnected!")
       end
-      def write(from, text)
-        p [:chat, :write, from, text]
-        broadcast(:receive, text) {|c| c != from }
+      def write(from, name, text)
+        #p [:chat, :write, from, text]
+        broadcast(:receive, name, text) {|c| c != from }
       end
-      def broadcast(msg, text, &blk)
-        p [:chat, :broadcast, @chatters.size, msg, text]
+      def broadcast(msg, *args, &blk)
+        #p [:chat, :broadcast, @chatters.size, msg, text]
         cs = @chatters
         cs = @chatters.select(&blk) if blk
         cs.each do |c|
-          c.send(msg, self, text)
+          c.send(msg, *args)
         end
       end
     end
     
-    @oleg  = Chatter.new("oleg")
-    @olga  = Chatter.new("olga")
-    
-    @chat_addr = em_addr
-    @chat = Chat.new
-    @chat.bind(@chat_addr)
-    
-    @oleg.extend(Module.new{
+    class Oleg < Chatter
+      def initialize
+        super(:name => "oleg")
+      end
       def receive(from, text)
         super
         case text
@@ -75,31 +70,51 @@ describe Pids, "chat" do
           write "Ok then! Cya!"
         when /ciao/i
         else 
-          write "I don't understand you"
+          raise "I don't understand you"
         end
       end
       def connected(pid)
-        p [:oleg, :connected, pid]
+        #p [:oleg, :connected, pid]
         super
         write("Hi!")
       end
-    })
-
-    @olga.extend(Module.new{
+    end
+    
+    class Olga < Chatter
+      def initialize
+        super(:name => "olga")
+      end
       def receive(from, text)
         super
         case text
         when /hi!/i
           write "Hello!"
-        when /how are you!/i
+        when /how are you/i
           write "Fine, thanks!"
         when /cya!/i
           write "Ciao!"
         else 
-          write "I don't understand you"
+          raise "I don't understand you"
         end
       end
-    })
+    end
+    
+    @oleg  = Oleg.new
+    @olga  = Olga.new
+    
+    @oleg.method(:marshal_dump)
+    
+    #p [:@oleg, @oleg]
+    #p [:@olga, @olga]
+    
+    @chat_addr = em_addr
+    @chat = Chat.new
+    #p [:@chat, @chat]
+    @chat.bind(@chat_addr)
+        
+    lambda { Marshal.dump(@oleg) }.should_not raise_error
+    lambda { Marshal.dump(@olga) }.should_not raise_error
+    
     Thread.new do
       @oleg.connect(@chat_addr)
       @olga.connect(@chat_addr)
@@ -107,10 +122,18 @@ describe Pids, "chat" do
   end
   
   it "should produce a conversion" do
-    sleep 2
+    sleep 0.5
     
-    p @oleg.log
+    @oleg.log.should == [
+      ["oleg", "Hi!"],
+      ["olga", "Hello!"],
+      ["oleg", "How are you?"],
+      ["olga", "Fine, thanks!"],
+      ["oleg", "Ok then! Cya!"],
+      ["olga", "Ciao!"]
+    ]
     
+    @oleg.log.should == @olga.log
   end
   
   

@@ -47,7 +47,7 @@ module EMRPC
       end
       
       def rescue_marshal_error(e)
-        # FIXME: do something with this!
+        raise e
       end
       
       def unbind

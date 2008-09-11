@@ -2,7 +2,7 @@ require 'uri'
 module EMRPC
   module Pids
     module Pid
-      attr_accessor :uuid, :options, :connected_pids, :killed
+      attr_accessor :uuid, :connected_pids, :killed
       attr_accessor :_em_server_signature, :_protocol, :_bind_address
       include DefaultCallbacks
       
@@ -21,6 +21,12 @@ module EMRPC
         @uuid = _random_uuid
         @connected_pids = {}
         super( *args, &blk) rescue nil
+      end
+      
+      def initialize_with_connection(conn, options)
+        @connected_pids = {}
+        @_connection = conn
+        @uuid        = options[:uuid]
       end
     
       def options
@@ -76,9 +82,13 @@ module EMRPC
       def marshal_dump
         @uuid
       end
-    
+      
+      def marshal_load(uuid)
+        @uuid = uuid
+      end
+          
       def connection_uuids
-        @connected_pids.keys
+        (@connected_pids || {}).keys
       end
     
       def inspect
@@ -131,6 +141,11 @@ module EMRPC
     
       def _unregister_pid(pid)
         @connected_pids.delete(pid.uuid)
+      end
+      
+      def _initialize_pids_recursively_d4d309bd!(host_pid)
+        pid = host_pid.find_pid(@uuid)
+        initialize_with_connection(pid._connection, pid.options)
       end
       
     private

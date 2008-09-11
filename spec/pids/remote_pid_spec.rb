@@ -26,11 +26,7 @@ describe RemotePid do
     it "should set uuid" do
       @rpid.uuid.should == @uuid
     end
-    
-    it "should set options" do
-      @rpid.options.should == @options
-    end
-    
+        
     it "should not be killed" do
       @rpid.should_not be_killed
     end
@@ -63,11 +59,7 @@ describe RemotePid do
       it "should have uuid" do
         @rpid.uuid.should == @uuid
       end
-      
-      it "should not have options" do
-        @rpid.options.should be_nil
-      end
-      
+            
       it "should not have _connection" do
         @rpid._connection.should be_nil
       end
@@ -88,10 +80,6 @@ describe RemotePid do
           @host_pid.stub!(:find_pid)
           @host_pid.should_receive(:find_pid).once.with(@uuid).and_return(@hosted_rpid)
           @rpid._initialize_pids_recursively_d4d309bd!(@host_pid)
-        end
-        
-        it "should set options" do
-          @rpid.options.should == @options
         end
         
         it "should set _connection" do
