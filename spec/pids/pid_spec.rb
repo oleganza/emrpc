@@ -21,6 +21,12 @@ describe Pid do
       end
     end
     @pid = @parent = @pid_class.new
+    
+    # Assign names to the classes to make them dumpable.
+    Object.send(:remove_const, :PidClass1) if defined?(::PidClass1)
+    Object.send(:remove_const, :PidClass2) if defined?(::PidClass2)
+    ::PidClass1 = @pid_class
+    ::PidClass2 = @child_class
   end
   
   
@@ -61,7 +67,7 @@ describe Pid do
       @server = @parent.tcp_spawn(@server_addr, @pid_class)
       @rpid_mock = an_instance_of(RemotePid)
       @parent.should_not_receive(:connecting_failed)
-      @parent.should_receive(:_register_pid).once.with(@rpid_mock)
+      @parent.should_receive(:_register_pid).once.with(@rpid_mock).and_return{|p| p}
       @parent.should_receive(:connected).once.with(@rpid_mock)
       @connection = @parent.connect(@server_addr)
     end
