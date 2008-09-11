@@ -6,6 +6,9 @@ module EMRPC
       attr_accessor :_em_server_signature, :_protocol, :_bind_address
       include DefaultCallbacks
       
+      # FIXME: doesn't override user-defined callbacks
+      include DebugPidCallbacks if $DEBUG 
+      
       # shorthand for console testing
       def self.new(*attributes)
         Class.new do
@@ -101,7 +104,12 @@ module EMRPC
       end
       
       def _protocol=(p)
-        @_protocol = Util.combine_modules(p, MarshalProtocol.new(Marshal), FastMessageProtocol, $DEBUG ? DebugConnection : Module.new)
+        @_protocol = Util.combine_modules(
+          p, 
+          MarshalProtocol.new(Marshal), 
+          FastMessageProtocol, 
+          $DEBUG ? DebugConnection : Module.new
+        )
       end
       
       def _send_dirty(*args)

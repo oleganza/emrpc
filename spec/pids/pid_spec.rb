@@ -56,9 +56,10 @@ describe Pid do
   describe "#connect" do
     
     before(:all) do
+      #$DEBUG = true
       @server_addr = em_addr
       @server = @parent.tcp_spawn(@server_addr, @pid_class)
-      @rpid_mock = duck_type(:uuid, :_connection, :options)
+      @rpid_mock = an_instance_of(RemotePid)
       @parent.should_not_receive(:connecting_failed)
       @parent.should_receive(:_register_pid).once.with(@rpid_mock)
       @parent.should_receive(:connected).once.with(@rpid_mock)
@@ -67,6 +68,7 @@ describe Pid do
     
     after(:all) do
       @server.kill
+      #$DEBUG = false
     end
     
     it "should wait until connection is established" do

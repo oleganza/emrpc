@@ -14,7 +14,7 @@ module EMRPC
       end
       
       def post_init
-        @id = (DebugConnection.id += 1)
+        @id ||= (DebugConnection.id += 1)
         _debug "post_init"
         super
       end

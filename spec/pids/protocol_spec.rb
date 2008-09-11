@@ -15,8 +15,9 @@ describe Protocol do
     @connection.stub!(:send_marshalled_message).and_return(nil)
     @local_pid = local_pid = mock("Pid", :uuid => @local_uuid, 
                                          :options => {:uuid => @local_uuid})
+
     local_pid.instance_eval do
-      stub!(:_register_pid).and_return(nil)
+      stub!(:_register_pid).and_return{|pid| pid}
       stub!(:connected).and_return(nil)
       stub!(:handshake_failed).and_return(nil)
     end
@@ -50,8 +51,8 @@ describe Protocol do
       #
       # Mock expectations
       #
-      rpid = duck_type(:uuid, :_connection, :options)
-      @local_pid.should_receive(:_register_pid).once.with(rpid)
+      rpid = an_instance_of(RemotePid)
+      @local_pid.should_receive(:_register_pid).once.with(rpid).and_return{|pid| pid}
       @local_pid.should_receive(:connected).once.with(rpid)
       @connection.should_receive(:send_handshake_message).once.with(@local_pid.options)
       #
@@ -60,9 +61,12 @@ describe Protocol do
       @connection.address = em_addr.parsed_uri
       @connection.local_pid = @local_pid
       @connection.post_init
-      @connection.connection_completed
+    # server doesn't receive this:  @connection.connection_completed
       @connection.receive_marshalled_message([:handshake, @remote_pid.options])
       @rpid = @connection.remote_pid
+    end
+    
+    it "should verify mocks" do
     end
     
     it "should have #remote_pid" do
@@ -83,7 +87,7 @@ describe Protocol do
         #
         # Mock expectations
         #
-        @local_pid.should_receive(:_unregister_pid).once.with(@rpid)
+        @local_pid.should_receive(:_unregister_pid).once.with(@rpid).and_return{|pid| pid}
         @local_pid.should_receive(:disconnected).once.with(@rpid)
         #
         # Init
