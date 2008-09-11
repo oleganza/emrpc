@@ -60,9 +60,7 @@ describe Pid do
 
 
   describe "#connect" do
-    
     before(:all) do
-      #$DEBUG = true
       @server_addr = em_addr
       @server = @parent.tcp_spawn(@server_addr, @pid_class)
       @rpid_mock = an_instance_of(RemotePid)
@@ -70,20 +68,16 @@ describe Pid do
       @parent.should_receive(:_register_pid).once.with(@rpid_mock).and_return{|p| p}
       @parent.should_receive(:connected).once.with(@rpid_mock)
       @connection = @parent.connect(@server_addr)
+      sleep 0.1
     end
     
     after(:all) do
       @server.kill
-      #$DEBUG = false
     end
     
-    it "should wait until connection is established" do
-      sleep 0.1
-    end
     it "should verify mocks" do
-      # this page is intentionally left blah-blah-blah
+      # this place is intentionally left blank
     end
-    
   end
 
 
