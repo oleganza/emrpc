@@ -2,7 +2,7 @@ require 'thread'
 module EMRPC
   # Sends all the messages to a specified backend
   # FIXME: deal with Object's methods gracefully.
-  class MethodProxy
+  class MethodProxy < BlankSlate
     EMPTY_ARGS = [ ].freeze
     attr_reader :__emrpc_backend
     def initialize(backend)
@@ -33,7 +33,7 @@ module EMRPC
       @__emrpc_backend.send(:is_a?, type)
     end
     
-    alias :__class__ :class
+    #alias :__class__ :class
     def class
       @__emrpc_backend.send(:class)
     end
@@ -50,7 +50,7 @@ module EMRPC
     
     
     def inspect
-      "#<#{self.__class__.name}:0x#{__id__.to_s(16)} remote:#{@__emrpc_backend.send(:inspect)}>"
+      "#<MethodProxy:0x#{__id__.to_s(16)} remote:#{@__emrpc_backend.send(:inspect)}>"
     end
     
   end

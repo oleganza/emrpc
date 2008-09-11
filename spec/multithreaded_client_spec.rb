@@ -29,25 +29,24 @@ describe MultithreadedClient, " with PoolTimeout" do
     @long_backend = Object.new
     class <<@long_backend
       def send(meth, *args, &blk)
-        sleep 0.1
+        sleep 0.4
       end
     end
     @long_client = MultithreadedClient.new(:backend => @long_backend, :timeout => 1)
   end
   
   it "should raise ThreadTimeout" do
+    @timeouts = Array.new
     ts = create_threads(50) do # some of them will die, but at least 10 - will not.
       begin
         @long_client.send(:some_meth)
       rescue PoolTimeout
+        @timeouts.push(1)
       end
     end
-    create_threads(10, true) do 
-      lambda {
-        @long_client.send(:some_meth)
-      }.should raise_error(PoolTimeout)
-    end
-    sleep 3
-    ts.each {|t| t.kill}
+    ts.map{|t| t.join}
+    total = @timeouts.inject(0){|a,b| a + b}
+    total.should > 10
+    total.should < 50
   end
 end

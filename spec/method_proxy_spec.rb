@@ -28,6 +28,6 @@ describe MethodProxy do
   end
   
   it "should inspect" do
-    @proxy.inspect == %{#<#{MethodProxy}:0x#{@proxy.__id__.to_s(16)} remote:#{@backend.inspect}>}
+    @proxy.inspect == %{#<MethodProxy:0x#{@proxy.__id__.to_s(16)} remote:#{@backend.inspect}>}
   end
 end
