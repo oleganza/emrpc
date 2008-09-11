@@ -4,6 +4,8 @@ require 'eventmachine'
 # add current dir to the load path
 $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__))))
 
+$DEBUG ||= ENV['DEBUG']
+
 require 'emrpc/util'
 require 'emrpc/em_start_stop_timeouts'
 require 'emrpc/version'

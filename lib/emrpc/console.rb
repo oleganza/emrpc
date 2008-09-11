@@ -16,6 +16,7 @@ end
 module EMRPC
   module Console
     include GemConsole
+    
     help 'n/a yet'
     
     def project_name
@@ -23,6 +24,7 @@ module EMRPC
     end
     
     def setup
+      include EMRPC
       $em_thread ||= EventMachine.run_in_thread(0)
     end
     

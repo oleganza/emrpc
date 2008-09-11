@@ -5,22 +5,29 @@ module EMRPC
       attr_accessor :local_pid
       attr_accessor :remote_pid
       
+      #
+      # IMPORTANT: server doesn't trigger #connection_completed callback.
+      #     
       def post_init
+        # setup single-shot version of receive_marshalled_message
+        class <<self
+          alias_method :receive_marshalled_message, :receive_handshake_message
+        end
       end
       
       def connection_completed
-        # setup single-shot version of receive_marshalled_message
-        class <<self
-          alias receive_marshalled_message receive_handshake_message
-        end
         send_handshake_message(@local_pid.options)
       end
       
       def send_handshake_message(arg)
+        @__sent_handshake = true
         send_marshalled_message([:handshake, arg])
       end
       
       def receive_handshake_message(msg)
+        unless @__sent_handshake # server-side
+          send_handshake_message(@local_pid.options)
+        end
         prefix, options = msg
         lpid = @local_pid
         prefix == :handshake or return lpid.handshake_failed(self, msg)
@@ -30,7 +37,7 @@ module EMRPC
         lpid.connected(rpid)
         # restore receive_marshalled_message
         class <<self
-          alias receive_marshalled_message receive_regular_message
+          alias_method :receive_marshalled_message, :receive_regular_message
         end
       end
       

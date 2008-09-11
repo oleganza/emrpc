@@ -5,7 +5,15 @@ module EMRPC
       attr_accessor :uuid, :options, :connected_pids, :killed
       attr_accessor :_em_server_signature, :_protocol, :_bind_address
       include DefaultCallbacks
-    
+      
+      # shorthand for console testing
+      def self.new(*attributes)
+        Class.new do
+          include Pid
+          attr_accessor(*attributes)
+        end.new
+      end
+      
       def initialize(*args, &blk)
         @uuid = _random_uuid
         @connected_pids = {}
@@ -93,7 +101,7 @@ module EMRPC
       end
       
       def _protocol=(p)
-        @_protocol = Util.combine_modules(p, MarshalProtocol.new(Marshal))
+        @_protocol = Util.combine_modules(p, MarshalProtocol.new(Marshal), FastMessageProtocol, $DEBUG ? DebugConnection : Module.new)
       end
       
       def _send_dirty(*args)
