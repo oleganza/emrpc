@@ -1,5 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-Thread.abort_on_exception = true
+
 describe BlockingClient do
 
   module ServerFixture
@@ -51,6 +51,7 @@ describe BlockingClient do
           ServerFixture.received_message(*data)
         end
       end
+      @server.abort_on_exception = true
       @client_protocol_cls = Class.new do
         attr_accessor :channel
         def send_from(callback, meth, *args, &blk)

@@ -9,7 +9,7 @@ describe MultithreadedClient, " with no timeouts" do
   end
   it "should work with all backends" do
     @results = []
-    ts = create_threads(10) do 
+    ts = create_threads(200) do 
       while true
         @results << @client.send(:[], 0)
       end
@@ -29,15 +29,18 @@ describe MultithreadedClient, " with PoolTimeout" do
     @long_backend = Object.new
     class <<@long_backend
       def send(meth, *args, &blk)
-        sleep 0.5
+        sleep 0.1
       end
     end
     @long_client = MultithreadedClient.new(:backend => @long_backend, :timeout => 1)
   end
   
   it "should raise ThreadTimeout" do
-    ts = create_threads(50) do # some of them will die
-      @long_client.send(:some_meth)
+    ts = create_threads(50) do # some of them will die, but at least 10 - will not.
+      begin
+        @long_client.send(:some_meth)
+      rescue PoolTimeout
+      end
     end
     create_threads(10, true) do 
       lambda {

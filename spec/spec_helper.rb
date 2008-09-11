@@ -36,6 +36,7 @@ module Fixtures
     attr_accessor :name
     def initialize(options = {})
       @name = options[:name]
+      super
     end
   end
 
@@ -46,6 +47,7 @@ module Fixtures
       @options = options
       @people = Array.new(ppl){ Person.new }
       @name = "Paris"
+      super
     end
   
     def translate(english_word)
