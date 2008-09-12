@@ -10,8 +10,8 @@ describe DefaultCallbacks do
     [:connected,         1],
     [:disconnected,      1],
     [:connecting_failed, 1],
-    [:on_return,         1],
-    [:on_raise,          1],
+    [:on_return,         2],
+    [:on_raise,          2],
     [:handshake_failed,  2]
   ].each do |(meth, arity)|
     
