@@ -35,7 +35,7 @@ module EMRPC
     
       def spawn(cls, *args, &blk)
         pid = cls.new(*args, &blk)
-        _register_pid(pid)
+        connect(pid)
         pid
       end
     
@@ -56,7 +56,15 @@ module EMRPC
       # 3. When uuid is received, triggers callback on the client.
       # (See Pids::Protocol for details)
       def connect(addr)
-        _em_init(:connect, addr, self)
+        if Pid === addr && pid = addr
+          # register and connect mutually
+          _register_pid(pid)
+          pid._register_pid(self)
+          pid.connected(self)
+          self.connected(pid)
+        else
+          _em_init(:connect, addr, self)
+        end
       end
       
       def kill
@@ -97,7 +105,7 @@ module EMRPC
       end
     
       def ==(other)
-        (other.is_a?(RemotePid) || other.is_a?(Pid)) && other.uuid == @uuid
+        other.is_a?(Pid) && other.uuid == @uuid
       end
       
       def _uid(uuid = @uuid)

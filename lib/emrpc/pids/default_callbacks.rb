@@ -21,11 +21,11 @@ module EMRPC
       end
 
       # Called when sync method returns value.
-      def on_return(value)
+      def on_return(pid, value)
       end
 
       # Called when sync method raises exception.
-      def on_raise(exception)
+      def on_raise(pid, exception)
       end
 
       # Called when pid responds incorrectly.
