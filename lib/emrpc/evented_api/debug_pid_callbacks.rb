@@ -16,8 +16,8 @@ module EMRPC
         super
       end
 
-      def connecting_failed(conn)
-        _debug "connecting_failed #{conn.inspect}"
+      def connection_failed(conn)
+        _debug "connection_failed #{conn.inspect}"
         super
       end
       

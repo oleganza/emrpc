@@ -10,6 +10,9 @@ describe Pid do
     @pid_class = Class.new do 
       include Pid
     end
+    @server_class = Class.new do 
+      include Pid
+    end
     @child_class = Class.new do
       include Pid
       attr_accessor :a, :b, :c
@@ -25,8 +28,10 @@ describe Pid do
     # Assign names to the classes to make them dumpable.
     Object.send(:remove_const, :PidClass1) if defined?(::PidClass1)
     Object.send(:remove_const, :PidClass2) if defined?(::PidClass2)
+    Object.send(:remove_const, :PidClass3) if defined?(::PidClass3)
     ::PidClass1 = @pid_class
     ::PidClass2 = @child_class
+    ::PidClass3 = @server_class
   end
   
   
@@ -40,8 +45,8 @@ describe Pid do
       @pid.uuid.should_not be_nil
     end
     
-    it "should have connected_pids uuid -> pid hash" do
-      @pid.connected_pids.should be_kind_of(Hash)
+    it "should have connections" do
+      @pid.connections.should be_kind_of(Hash)
     end
     
     it "should have options hash" do
@@ -53,8 +58,8 @@ describe Pid do
   describe "new instance" do
     it_should_behave_like "any local pid"
     
-    it "should have empty list of connected pids" do
-      @pid.connected_pids.should be_empty
+    it "should have empty list of connections" do
+      @pid.connections.should be_empty
     end
   end
 
@@ -62,13 +67,12 @@ describe Pid do
   describe "#connect" do
     before(:all) do
       @server_addr = em_addr
-      @server = @parent.tcp_spawn(@server_addr, @pid_class)
-      @rpid_mock = an_instance_of(RemotePid)
-      @parent.should_not_receive(:connecting_failed)
-      @parent.should_receive(:_register_pid).once.with(@rpid_mock).and_return{|p| p}
-      @parent.should_receive(:connected).once.with(@rpid_mock)
-      @server.should_receive(:_register_pid).once.with(@rpid_mock).and_return{|p| p}
-      @server.should_receive(:connected).once.with(@rpid_mock)
+      @server = @parent.tcp_spawn(@server_addr, @server_class)
+      @pid_mock = an_instance_of(RemotePid)
+      @conn_mock = an_instance_of(RemoteConnection)
+      @parent.should_not_receive(:connection_failed)
+      @parent.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @server_rpid = pid}
+      @server.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @client_rpid = pid}
       @connection = @parent.connect(@server_addr)
       sleep 0.1 # wait until all messages are passed.
     end
@@ -81,10 +85,21 @@ describe Pid do
       # blank
     end
     
+    it "should produce pids" do
+      @client_rpid.should_not be_nil
+      @server_rpid.should_not be_nil
+      @client_rpid.should be_kind_of(RemotePid)
+      @server_rpid.should be_kind_of(RemotePid)
+      @client_rpid.uuid.should == @parent.uuid
+      @server_rpid.uuid.should == @server.uuid
+    end
+    
     describe "and #disconnect" do
       before(:all) do
-        # TODO: more mocks...
-        
+        @parent.should_receive(:disconnected).once.with(@server_rpid).ordered
+        @server.should_receive(:disconnected).once.with(@client_rpid).ordered
+        @parent.disconnect(@server_rpid)
+        sleep 0.1
       end
       it "should verify mocks" do
         # blank
@@ -141,13 +156,13 @@ describe Pid do
     
     describe "killed" do
       before(:each) do
-        a = mock("pid1")
-        b = mock("pid2")
-        a.stub!(:disconnected).and_return(nil)
-        b.stub!(:disconnected).and_return(nil)
-        a.should_receive(:disconnected).once.with(@pid)
-        b.should_receive(:disconnected).once.with(@pid)
-        @pid.connected_pids = {"uuid1" => a, "uuid2" => b}
+        a = mock("conn1")
+        b = mock("conn2")
+        a.stub!(:close_connection_after_writing).and_return(nil)
+        b.stub!(:close_connection_after_writing).and_return(nil)
+        a.should_receive(:close_connection_after_writing).once
+        b.should_receive(:close_connection_after_writing).once
+        @pid.connections = {"uuid1" => a, "uuid2" => b}
         @pid.kill
         sleep 1.3
       end
@@ -157,7 +172,7 @@ describe Pid do
       end
       
       it "should clear connections" do
-        @pid.connected_pids.should be_empty
+        @pid.connections.should be_empty
       end
       
       it "should take server down" do

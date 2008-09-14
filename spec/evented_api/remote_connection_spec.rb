@@ -17,8 +17,8 @@ describe RemoteConnection do
                                          :options => {:uuid => @local_uuid})
 
     local_pid.instance_eval do
-      stub!(:_register_pid).and_return{|pid| pid}
-      stub!(:connected).and_return(nil)
+      stub!(:connection_established).and_return{|pid, conn| pid}
+      stub!(:connection_unbind)
       stub!(:handshake_failed).and_return(nil)
     end
     
@@ -52,8 +52,7 @@ describe RemoteConnection do
       # Mock expectations
       #
       rpid = an_instance_of(RemotePid)
-      @local_pid.should_receive(:_register_pid).once.with(rpid).and_return{|pid| pid}
-      @local_pid.should_receive(:connected).once.with(rpid)
+      @local_pid.should_receive(:connection_established).once.with(rpid, @connection).and_return{|pid, conn| pid}
       @connection.should_receive(:send_handshake_message).once.with(@local_pid.options)
       #
       # Init
@@ -87,8 +86,7 @@ describe RemoteConnection do
         #
         # Mock expectations
         #
-        @local_pid.should_receive(:_unregister_pid).once.with(@rpid).and_return{|pid| pid}
-        @local_pid.should_receive(:disconnected).once.with(@rpid)
+        @local_pid.should_receive(:connection_unbind).once.with(@rpid, @connection).ordered
         #
         # Init
         #
@@ -107,7 +105,7 @@ describe RemoteConnection do
       #
       # Mock expectations
       #
-      @local_pid.should_receive(:connecting_failed).once.with(@connection)
+      @local_pid.should_receive(:connection_failed).once.with(@connection)
       @connection.should_not_receive(:send_handshake_message)
       #
       # Init

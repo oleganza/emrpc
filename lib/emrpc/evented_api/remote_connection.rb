@@ -29,9 +29,6 @@ module EMRPC
         lpid = @local_pid
         prefix == :handshake or return lpid.handshake_failed(self, msg)
         rpid = RemotePid.new(self, options)
-        # we don't put +_register_pid+ into +connected+ callback to avoid unneccessary +super+ calls in callbacks.
-        @remote_pid = rpid = lpid._register_pid(rpid)
-        raise "ACHTUNG! rpid is nil!" if rpid == nil
         # restore receive_marshalled_message
         class <<self
           alias_method :receive_marshalled_message, :receive_regular_message
@@ -39,7 +36,7 @@ module EMRPC
         unless @__sent_handshake # server-side
           send_handshake_message(@local_pid.options)
         end
-        lpid.connected(rpid)
+        @remote_pid = lpid.connection_established(rpid, self)
       end
       
       def receive_regular_message(msg)
@@ -56,11 +53,10 @@ module EMRPC
           # we don't put +_unregister_pid+ into +connection_lost+ callback to avoid unneccessary +super+ calls in callbacks.
           rpid = @remote_pid
           @remote_pid = nil
-          @local_pid._unregister_pid(rpid)
-          @local_pid.disconnected(rpid)
+          @local_pid.connection_unbind(rpid, self)
         else
           # there were no connection, connecting failed. 
-          @local_pid.connecting_failed(self)
+          @local_pid.connection_failed(self)
         end
       end
       

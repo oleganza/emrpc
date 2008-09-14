@@ -1,8 +1,14 @@
 require 'uri'
 module EMRPC
   module EventedAPI
+    # Pid is a abbreviation for "process id". Pid represents so-called lightweight process (like in Erlang OTP)
+    # Pids can be created, connected, disconnected, spawned, killed. 
+    # When pid is created, it exists on its own.
+    # When someone connects to the pid, connection is established.
+    # When pid is killed, all its connections are unbinded.
+    
     module Pid
-      attr_accessor :uuid, :connected_pids, :killed
+      attr_accessor :uuid, :connections, :killed
       attr_accessor :_em_server_signature, :_protocol, :_bind_address
       include DefaultCallbacks
       
@@ -23,20 +29,10 @@ module EMRPC
       
       def initialize(*args, &blk)
         @uuid = _random_uuid
-        @connected_pids = {}
+        _common_init
         super( *args, &blk) rescue nil
       end
       
-      def initialize_with_connection(conn, options)
-        @connected_pids = {}
-        @_connection = conn
-        @uuid        = options[:uuid]
-      end
-    
-      def options
-        {:uuid => @uuid}
-      end
-    
       def spawn(cls, *args, &blk)
         pid = cls.new(*args, &blk)
         connect(pid)
@@ -59,21 +55,16 @@ module EMRPC
       # 2. When connection is established, asks for uuid.
       # 3. When uuid is received, triggers callback on the client.
       # (See EventedAPI::Protocol for details)
-      def connect(addr)
+      def connect(addr, conn = nil)
         if Pid === addr && pid = addr
-          # register and connect mutually
-          _register_pid(pid)
-          pid._register_pid(self)
-          pid.connected(self)
-          self.connected(pid)
+          LocalConnection.new(self, pid)
         else
           _em_init(:connect, addr, self)
         end
       end
       
       def disconnect(pid)
-        _unregister_pid(pid)
-        pid.disconnected(self)
+        @connections[pid.uuid].close_connection_after_writing
       end
       
       def kill
@@ -81,11 +72,39 @@ module EMRPC
         if @_em_server_signature
           EventMachine.stop_server(@_em_server_signature)
         end
-        @connected_pids.each do |uuid, pid|
-          pid.send(:disconnected,self)
+        @connections.each do |uuid, conn|
+          conn.close_connection_after_writing
         end
-        @connected_pids.clear
+        @connections.clear
         @killed = true
+      end
+      
+      # TODO:
+      # When connecting to a spawned pid, we should transparantly discard TCP connection
+      # in favor of local connection.
+      def connection_established(pid, conn)
+        @connections[pid.uuid] ||= conn
+        connected(pid)
+        @connections[pid.uuid].remote_pid || pid # looks like hack, but it is not.
+      end
+
+      def connection_unbind(pid, conn)
+        @connections.delete(pid.uuid)
+        disconnected(pid)
+      end
+      
+      #
+      # Util
+      #
+      
+      def initialize_with_connection(conn, options)
+        _common_init
+        @_connection = conn
+        @uuid        = options[:uuid]
+      end
+            
+      def options
+        {:uuid => @uuid}
       end
       
       def killed?
@@ -93,7 +112,7 @@ module EMRPC
       end
           
       def find_pid(uuid)
-        @connected_pids[uuid] or raise "No pid #{uuid} found in a #{self}"
+        ((conn = @connections[uuid]) and conn.remote_pid) or raise "Pid #{_uid} was not found in a #{self}"
       end
 
       def marshal_dump
@@ -105,7 +124,7 @@ module EMRPC
       end
           
       def connection_uuids
-        (@connected_pids || {}).keys
+        (@connections || {}).keys
       end
     
       def inspect
@@ -117,6 +136,7 @@ module EMRPC
         other.is_a?(Pid) && other.uuid == @uuid
       end
       
+      # shorter uuid for pretty output
       def _uid(uuid = @uuid)
         uuid && uuid[0,6]
       end
@@ -151,15 +171,7 @@ module EMRPC
         args._initialize_pids_recursively_d4d309bd!(self)
         send(*args)
       end
-  
-      def _register_pid(pid)
-        @connected_pids[pid.uuid] ||= pid
-      end
-    
-      def _unregister_pid(pid)
-        @connected_pids.delete(pid.uuid)
-      end
-      
+        
       def _initialize_pids_recursively_d4d309bd!(host_pid)
         pid = host_pid.find_pid(@uuid)
         initialize_with_connection(pid._connection, pid.options)
@@ -167,6 +179,10 @@ module EMRPC
       
     private
   
+      def _common_init
+        @connections = {} # pid.uuid -> connection
+      end
+      
       def _random_uuid
         # FIXME: insert real uuid generating here!
         rand(2**128).to_s(16)

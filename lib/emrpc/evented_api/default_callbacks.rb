@@ -1,7 +1,6 @@
 module EMRPC
   module EventedAPI
     module DefaultCallbacks
-
       # Called with some pid is connected to us (we are the server)
       # or when we connect to another pid (we act as client).
       # When two pids are connected, they act as client and server interchangably
@@ -17,7 +16,7 @@ module EMRPC
       # Called when pid failed connecting to the address
       # Argument +conn+ is the same what #connect(addr) returns.
       # Address is contained in the +conn.address+
-      def connecting_failed(conn)
+      def connection_failed(conn)
       end
 
       # Called when sync method returns value.
