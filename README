@@ -4,6 +4,7 @@ asynchronous erlang-like interface along with blocking synchronous interface.
 
 Author: Oleg Andreev <oleganza@gmail.com>
 
+
 HELLO WORLD (BLOCKING API)
 
   class HelloWorld
@@ -12,15 +13,47 @@ HELLO WORLD (BLOCKING API)
     end
   end
     
-  server = EMRPC::Server.new(:host => '0.0.0.0', 
-                             :port => 9000, 
-                             :object => HelloWorld.new)
+  server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
+                             :backend => HelloWorld.new)
   
   EM::run do
     server.run
   end
   
-  client = EMRPC::Client.new(:host => "localhost", :port => 9000)
+  client = EMRPC::Client.new(:address => 'emrpc://localhost:4000/')
   client.action == "Hello!" #=> true
 
-HELLO WORLD (BLOCKING API)
+
+HELLO WORLD (EVENTED API)
+
+  class HelloWorld
+    include EventedAPI::Pid
+    def action(sender)
+      puts "HelloWorld replies to the sender #{sender}..."
+      sender.reply(self, "Hello!")
+    end
+  end
+
+  class User
+    include EventedAPI::Pid
+    def connected(pid)
+      puts "Pid #{pid} connected to the user."
+      pid.action(self)
+    end
+    def reply(pid, msg)
+      puts "Pid #{pid} replied: #{msg}"
+    end
+  end
+    
+  EM::run do
+    hw = HelloWorld.new
+    hw.bind('emrpc://localhost:4000/')  # bind a pid to the address 
+    
+    oleg = User.new
+    oleg.connect('emrpc://localhost:4000/') # connect to that address
+  end
+  
+  # Output:
+  Pid #<EMRPC::EventedAPI::RemotePid:0x143b740> connected to the user.
+  HelloWorld replies to the sender #<User:0x143b4d4>...
+  Pid #<HelloWorld:0x143d540> replied: Hello!
