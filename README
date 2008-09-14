@@ -4,6 +4,7 @@ asynchronous erlang-like interface along with blocking synchronous interface.
 
 Author: Oleg Andreev <oleganza@gmail.com>
 
+-------------------------------------------------------------------------------
 
 HELLO WORLD (BLOCKING API)
 
@@ -23,6 +24,7 @@ HELLO WORLD (BLOCKING API)
   client = EMRPC::Client.new(:address => 'emrpc://localhost:4000/')
   client.action == "Hello!" #=> true
 
+-------------------------------------------------------------------------------
 
 HELLO WORLD (EVENTED API)
 
@@ -37,7 +39,7 @@ HELLO WORLD (EVENTED API)
   class User
     include EventedAPI::Pid
     def connected(pid)
-      puts "Pid #{pid} connected to the user."
+      puts "Pid #{pid} connected with the user."
       pid.action(self)
     end
     def reply(pid, msg)
@@ -54,6 +56,44 @@ HELLO WORLD (EVENTED API)
   end
   
   # Output:
-  Pid #<EMRPC::EventedAPI::RemotePid:0x143b740> connected to the user.
+  Pid #<EMRPC::EventedAPI::RemotePid:0x143b740> connected with the user.
   HelloWorld replies to the sender #<User:0x143b4d4>...
   Pid #<HelloWorld:0x143d540> replied: Hello!
+
+-------------------------------------------------------------------------------
+
+HELLO WORLD (EVENTED WRAPPER, MIXED API)
+
+  class HelloWorld
+    def action
+      "Hello!"
+    end
+  end
+    
+  server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
+                             :backend => HelloWorld.new)
+                             
+  class User
+    include EventedAPI::Pid
+    def connected(pid)
+      puts "Pid #{pid} connected to the user."
+      pid.action(self)
+    end
+    def on_return(pid, msg)
+      puts "Pid #{pid} replied: #{msg}"
+    end
+  end
+
+  EM::run do
+    server.run
+
+    oleg = User.new
+    oleg.connect('emrpc://localhost:4000/') # connect to that address
+  end
+
+  # Output:
+  Pid #<EMRPC::EventedAPI::RemotePid:0x143b740> connected to the user.
+  Pid #<HelloWorld:0x143d540> replied: Hello!
+
+-------------------------------------------------------------------------------
+
