@@ -6,6 +6,7 @@ module EMRPC
       attr_accessor :backend
       
       def initialize(options = {})
+        super
         @backend = options[:backend] or raise ":backend option is missing!"
       end
       
