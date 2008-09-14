@@ -1,10 +1,10 @@
 EMRPC is a EventMachine-based remote procedure call library.
 It looks like DRb, but is much more efficient and provides
-asynchronous interface along with blocking synchronous interface. 
+asynchronous erlang-like interface along with blocking synchronous interface. 
 
 Author: Oleg Andreev <oleganza@gmail.com>
 
-HELLO WORLD
+HELLO WORLD (BLOCKING API)
 
   class HelloWorld
     def action
@@ -23,27 +23,4 @@ HELLO WORLD
   client = EMRPC::Client.new(:host => "localhost", :port => 9000)
   client.action == "Hello!" #=> true
 
-
-API flavors
-
-  1. Evented programming based on erlang-style pids.
-  2. Evented RPC for regular ruby objects.
-  3. Blocking API for evented RPC.
-
-
-BLOCKING API
-
-  API consists of the several proxy layers. 
-  Each layer relies on #send(math, *args, &blk) method.
-  When the #send call is done, current thread is blocked 
-  until backend responds or timeout exception is raised.
-  
-  MultithreadedClient implements abstract connections pooling 
-  mechanism.
-
-ASYNCHRONOUS API
-  
-  Async API uses #send method to send messages and a reposnder object
-  responding to #on_return(result) and #on_raise(exception), which
-  are called when result is ready or exception was raised.
-
+HELLO WORLD (BLOCKING API)

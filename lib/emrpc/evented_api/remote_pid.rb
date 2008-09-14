@@ -1,5 +1,6 @@
 module EMRPC
   module EventedAPI
+    # RemotePid is an interface for the actual remote pid.
     class RemotePid
       include Pid
       attr_accessor :_connection

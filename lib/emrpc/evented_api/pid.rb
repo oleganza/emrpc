@@ -11,10 +11,14 @@ module EMRPC
       
       # shorthand for console testing
       def self.new(*attributes)
-        Class.new do
+        # We create random global const to workaround Marshal.dump issue:
+        # >> Marshal.dump(Class.new.new)
+        #    TypeError: can't dump anonymous class #<Class:0x5b5338>
+        #
+        const_set("DynamicPidClass#{rand(2**128).to_s(16).upcase}", Class.new {
           include Pid
           attr_accessor(*attributes)
-        end.new
+        }).new
       end
       
       def initialize(*args, &blk)
@@ -65,6 +69,11 @@ module EMRPC
         else
           _em_init(:connect, addr, self)
         end
+      end
+      
+      def disconnect(pid)
+        _unregister_pid(pid)
+        pid.disconnected(self)
       end
       
       def kill
@@ -126,7 +135,7 @@ module EMRPC
       end
       
       def _protocol
-        @_protocol ||= self.__send__(:_protocol=, Protocol)
+        @_protocol ||= self.__send__(:_protocol=, RemoteConnection)
       end
       
       def _protocol=(p)

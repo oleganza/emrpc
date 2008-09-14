@@ -70,7 +70,7 @@ describe Pid do
       @server.should_receive(:_register_pid).once.with(@rpid_mock).and_return{|p| p}
       @server.should_receive(:connected).once.with(@rpid_mock)
       @connection = @parent.connect(@server_addr)
-      sleep 0.1
+      sleep 0.1 # wait until all messages are passed.
     end
     
     after(:all) do
@@ -78,14 +78,17 @@ describe Pid do
     end
     
     it "should verify mocks" do
-      # this place is intentionally left blank
+      # blank
     end
     
     describe "and #disconnect" do
       before(:all) do
         # TODO: more mocks...
+        
       end
-      it "should verify mocks"
+      it "should verify mocks" do
+        # blank
+      end
     end
   end
 

@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe Protocol do
+describe RemoteConnection do
 
   before(:each) do
-    @protocol_class = Class.new{include Protocol}
+    @protocol_class = Class.new{include RemoteConnection}
     @connection = @protocol_class.new
     
     #

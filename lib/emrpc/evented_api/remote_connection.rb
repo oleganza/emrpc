@@ -1,6 +1,6 @@
 module EMRPC
   module EventedAPI
-    module Protocol
+    module RemoteConnection
       attr_accessor :address
       attr_accessor :local_pid
       attr_accessor :remote_pid
@@ -64,6 +64,6 @@ module EMRPC
         end
       end
       
-    end # Protocol
+    end # RemoteConnection
   end # EventedAPI
 end # EMRPC
