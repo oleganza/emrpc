@@ -18,7 +18,7 @@ HELLO WORLD (BLOCKING API)
                              :backend => HelloWorld.new)
   
   EM::run do
-    server.run
+    server.start
   end
   
   client = EMRPC::Client.new(:address => 'emrpc://localhost:4000/')
@@ -77,7 +77,7 @@ HELLO WORLD (EVENTED WRAPPER, MIXED API)
     include EventedAPI::Pid
     def connected(pid)
       puts "Pid #{pid} connected to the user."
-      pid.action(self)
+      pid.send(self, :action)
     end
     def on_return(pid, msg)
       puts "Pid #{pid} replied: #{msg}"
@@ -85,7 +85,7 @@ HELLO WORLD (EVENTED WRAPPER, MIXED API)
   end
 
   EM::run do
-    server.run
+    server.start
 
     oleg = User.new
     oleg.connect('emrpc://localhost:4000/') # connect to that address

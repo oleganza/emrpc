@@ -83,6 +83,7 @@ module EMRPC
       # When connecting to a spawned pid, we should transparantly discard TCP connection
       # in favor of local connection.
       def connection_established(pid, conn)
+        @connections ||= {}
         @connections[pid.uuid] ||= conn
         connected(pid)
         @connections[pid.uuid].remote_pid || pid # looks like hack, but it is not.
@@ -120,6 +121,7 @@ module EMRPC
       end
       
       def marshal_load(uuid)
+        _common_init
         @uuid = uuid
       end
           

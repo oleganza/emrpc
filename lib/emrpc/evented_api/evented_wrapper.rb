@@ -6,7 +6,7 @@ module EMRPC
       attr_accessor :backend
       
       def initialize(options = {})
-        @backend = options[:backend]
+        @backend = options[:backend] or raise ":backend option is missing!"
       end
       
       def send(from, msg, *args)
