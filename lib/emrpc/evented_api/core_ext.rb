@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     #
     # Initializes pids recursively upon any enumerable (responding to #each).
     #
@@ -29,5 +29,5 @@ module EMRPC
       end
     end
     
-  end # Pids
+  end # EventedAPI
 end # EMRPC

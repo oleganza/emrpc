@@ -1,6 +1,6 @@
 require 'uri'
 module EMRPC
-  module Pids
+  module EventedAPI
     class EventedWrapper
       include Pid
       attr_accessor :backend
@@ -19,5 +19,5 @@ module EMRPC
       end
     end
     
-  end # Pids
+  end # EventedAPI
 end # EMRPC

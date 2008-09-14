@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     class RemotePid
       include Pid
       attr_accessor :_connection
@@ -32,5 +32,5 @@ module EMRPC
       end
             
     end # RemotePid
-  end # Pids
+  end # EventedAPI
 end # EMRPC

@@ -1,6 +1,6 @@
 require 'uri'
 module EMRPC
-  module Pids
+  module EventedAPI
     module Pid
       attr_accessor :uuid, :connected_pids, :killed
       attr_accessor :_em_server_signature, :_protocol, :_bind_address
@@ -54,7 +54,7 @@ module EMRPC
       # 1. Connect to the pid.
       # 2. When connection is established, asks for uuid.
       # 3. When uuid is received, triggers callback on the client.
-      # (See Pids::Protocol for details)
+      # (See EventedAPI::Protocol for details)
       def connect(addr)
         if Pid === addr && pid = addr
           # register and connect mutually
@@ -164,5 +164,5 @@ module EMRPC
       end
       
     end # Pid
-  end # Pids
+  end # EventedAPI
 end # EMRPC

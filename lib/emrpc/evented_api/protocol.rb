@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     module Protocol
       attr_accessor :address
       attr_accessor :local_pid
@@ -65,5 +65,5 @@ module EMRPC
       end
       
     end # Protocol
-  end # Pids
+  end # EventedAPI
 end # EMRPC

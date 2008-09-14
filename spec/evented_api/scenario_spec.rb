@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe Pids, "chat" do
+describe EventedAPI, "chat" do
   
   before(:all) do
     

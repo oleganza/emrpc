@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     module DefaultCallbacks
 
       # Called with some pid is connected to us (we are the server)
@@ -35,5 +35,5 @@ module EMRPC
       end
       
     end # DefaultCallbacks
-  end # Pids
+  end # EventedAPI
 end # EMRPC

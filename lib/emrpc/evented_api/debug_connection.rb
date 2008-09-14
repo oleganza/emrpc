@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     module DebugConnection
       
       class <<self
@@ -50,5 +50,5 @@ module EMRPC
       end
       
     end # DebugConnection
-  end # Pids
+  end # EventedAPI
 end # EMRPC

@@ -1,5 +1,5 @@
 module EMRPC
-  module Pids
+  module EventedAPI
     module DebugPidCallbacks
       
       def _debug(m)
@@ -37,5 +37,5 @@ module EMRPC
       end
       
     end # DebugPidCallbacks
-  end # Pids
+  end # EventedAPI
 end # EMRPC
