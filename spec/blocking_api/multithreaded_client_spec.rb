@@ -19,7 +19,7 @@ describe MultithreadedClient, " with no timeouts" do
     
     # Average respond should be 2.0 (all backends are equally loaded)
     avg = @results.inject{|a,b| a + b } / @results.size.to_f
-    avg.should be_close(2, 0.2)
+    avg.should be_close(2, 0.4)
   end
 end
 
