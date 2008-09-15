@@ -21,10 +21,12 @@ module EMRPC
 
       # Called when sync method returns value.
       def on_return(pid, value)
+        raise UndefinedCallback, "#{self}.on_return callback is undefined. Received: pid = #{pid}, value = #{value}."
       end
 
       # Called when sync method raises exception.
       def on_raise(pid, exception)
+        raise UndefinedCallback, "#{self}.on_raise callback is undefined. Received: pid = #{pid}, exception = #{exception}."
       end
 
       # Called when pid responds incorrectly.
@@ -32,6 +34,8 @@ module EMRPC
       def handshake_failed(conn, msg)
         raise "Hello failed in connection #{conn} with message #{msg.inspect} (expected [:hello, {:uuid => <UUID>}])"
       end
+      
+      class UndefinedCallback < StandardError; end
       
     end # DefaultCallbacks
   end # EventedAPI

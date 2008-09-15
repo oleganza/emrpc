@@ -10,7 +10,6 @@ module EMRPC
   #
   #
   module SinglethreadedClient
-    #attr_accessor :mbox
     
     def send(*args)
       unless mbox = @mbox

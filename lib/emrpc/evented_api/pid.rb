@@ -56,7 +56,7 @@ module EMRPC
       # 3. When uuid is received, triggers callback on the client.
       # (See EventedAPI::Protocol for details)
       def connect(addr, conn = nil)
-        if Pid === addr && pid = addr
+        if addr.is_a?(Pid) && pid = addr
           LocalConnection.new(self, pid)
         else
           _em_init(:connect, addr, self)
