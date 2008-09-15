@@ -21,15 +21,14 @@ HELLO WORLD (BLOCKING API)
     
   server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
                              :backend => HelloWorld.new)
-  
-  EM::run do
-    server.start
+  emt = Thread.new do 
+    EM::run do
+      server.start
+    end
   end
-  
-  # in the other terminal:
+  sleep 0.2
   client = EMRPC::Client.new('emrpc://localhost:4000/')
   client.action == "Hello!" #=> true
-
 
 -------------------------------------------------------------------------------
 

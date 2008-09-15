@@ -48,8 +48,8 @@ module EMRPC
       end
       
       def send(*args)
-        if @rpid
-          @rpid.send(*args)
+        if p = @rpid
+          p.send(*args)
         else
           @backlog.push(args)
           if @backlog.size > @max_backlog

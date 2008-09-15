@@ -1,8 +1,6 @@
-reconnecting client
 rack http server & http client
-object serialization:
-  self (special case, return reference to the running )
-  other
 unix sockets interface
+REv along with eventmachine backend
+passing particular objects through TCP
 resource discovery
 ring/chord protocol
