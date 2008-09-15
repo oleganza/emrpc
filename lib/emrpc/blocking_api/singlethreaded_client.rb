@@ -11,10 +11,19 @@ module EMRPC
   #
   module SinglethreadedClient
     
+    # Initialization method-1
+    def initialize(*args, &blk)
+      super(*args, &blk)
+      @mbox = Queue.new
+    end
+    
+    # Initialization method-2
+    def self.extended(obj)
+      obj.instance_variable_set(:@mbox, Queue.new)
+    end
+    
     def send(*args)
-      unless mbox = @mbox
-        mbox = @mbox = Queue.new
-      end
+      mbox = @mbox
       super(self, *args)
       mbox.shift == :return ? (return mbox.shift) : (raise mbox.shift)
     end

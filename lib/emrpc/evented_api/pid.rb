@@ -30,7 +30,7 @@ module EMRPC
       def initialize(*args, &blk)
         @uuid = _random_uuid
         _common_init
-        super( *args, &blk) rescue nil
+        super(*args, &blk) rescue nil
       end
       
       def spawn(cls, *args, &blk)

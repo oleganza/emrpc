@@ -7,14 +7,14 @@ module EMRPC
     # 
     # You can also pass optional params for EMRPC::EventedAPI::ReconnectingPid.
     #
-    def initialize(address, options)
+    def initialize(address, options = {})
       @address = address
-      @pid = ReconnectingPid.new(@address, options)
+      @pid = EventedAPI::ReconnectingPid.new(@address, options)
       @pid.extend(SinglethreadedClient)
     end
     
     def method_missing(meth, *args, &blk)
-      @pid.send(self, meth, *args)
+      @pid.send(meth, *args)
     end
     
   end # Client

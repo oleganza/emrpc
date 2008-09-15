@@ -42,6 +42,7 @@ describe SinglethreadedClient do
       @server = Thread.new do 
         while true
           data = @channel.shift
+          sleep 0.1
           ServerFixture.send(*data)
         end
       end

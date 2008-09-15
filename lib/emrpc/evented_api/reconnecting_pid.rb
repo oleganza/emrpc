@@ -28,6 +28,7 @@ module EMRPC
       #   :timer           Proc which runs a periodic timer. Default is Timers::EVENTED. See EMRPC::Timers for more info.
       #   
       def initialize(address, options = {})
+        super(address, options)
         
         @address = address
 
