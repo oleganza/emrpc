@@ -4,6 +4,11 @@ asynchronous erlang-like interface along with blocking synchronous interface.
 
 Author: Oleg Andreev <oleganza@gmail.com>
 
+Many thanks to:
+* linkfeed.ru for the real-world EMRPC-based application.
+* pierlis.com for the table/chair/wifi in Paris.
+
+
 EXAMPLES
 
 You may try out examples using bin/em_console IRB session.
@@ -70,13 +75,21 @@ HELLO WORLD (EVENTED API)
 
 HELLO WORLD (EVENTED WRAPPER, MIXED API)
 
-  # in both processes:
+  # in first process:
   class HelloWorld
     def action
       "Hello!"
     end
   end
-    
+  
+  server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
+                             :backend => HelloWorld.new)
+  
+  EM::run do
+    server.start
+  end
+  
+  # in the other process (actually, this works in the same process with the server too):
   class User
     include Pid
     def connected(pid)
@@ -88,15 +101,6 @@ HELLO WORLD (EVENTED WRAPPER, MIXED API)
     end
   end
   
-  server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
-                             :backend => HelloWorld.new)
-  
-  # in first process:
-  EM::run do
-    server.start
-  end
-  
-  # in the other process:
   EM::run do
     oleg = User.new
     oleg.connect('emrpc://localhost:4000/') # connect to that address
