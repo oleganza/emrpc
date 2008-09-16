@@ -15,6 +15,9 @@ module EMRPC
         end
       end
       
+      #
+      # Handshake protocol
+      #
       def connection_completed
         send_handshake_message(@local_pid.options)
       end
@@ -39,8 +42,16 @@ module EMRPC
         @remote_pid = lpid.connection_established(rpid, self)
       end
       
+      #
+      # Regular protocol
+      #
+      def send_raw_message(args)
+        send_marshalled_message(args.encode_b381b571_1ab2_5889_8221_855dbbc76242(@local_pid))
+      end
+      
       def receive_regular_message(msg)
-        @local_pid._send_dirty(*msg)
+        lpid = @local_pid
+        lpid.send(*(msg.decode_b381b571_1ab2_5889_8221_855dbbc76242(lpid)))
       end
       
       def rescue_marshal_error(e)

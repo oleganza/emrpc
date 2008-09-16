@@ -6,7 +6,9 @@ module EMRPC
       attr_accessor :_connection
 
       def initialize(conn, options)
-        initialize_with_connection(conn, options)
+        _common_init
+        @_connection = conn
+        @uuid        = options[:uuid]
       end
 
       def method_missing(*args)
@@ -19,7 +21,7 @@ module EMRPC
           return if @killed
           @killed = true
         end
-        @_connection.send_marshalled_message(args)
+        @_connection.send_raw_message(args)
       end
       
       def kill

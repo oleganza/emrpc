@@ -95,14 +95,7 @@ module EMRPC
       
       #
       # Util
-      #
-      
-      def initialize_with_connection(conn, options)
-        _common_init
-        @_connection = conn
-        @uuid        = options[:uuid]
-      end
-            
+      #            
       def options
         {:uuid => @uuid}
       end
@@ -168,14 +161,10 @@ module EMRPC
         )
       end
       
+      # TODO: remove this in favor of using codec.rb
       def _send_dirty(*args)
         args._initialize_pids_recursively_d4d309bd!(self)
         send(*args)
-      end
-        
-      def _initialize_pids_recursively_d4d309bd!(host_pid)
-        pid = host_pid.find_pid(@uuid)
-        initialize_with_connection(pid._connection, pid.options)
       end
       
     private
