@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
+include EventedAPI
 
 describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
   
@@ -70,46 +71,31 @@ describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
     end
   end
   
-  describe EventedAPI::Pid do
+  describe Pid do
+    before(:each) do
+      @pid = Pid.new
+      @epid = @pid.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+    end
     
+    it "should be encoded into Pid::Marshallable" do
+      @epid.should be_kind_of(Pid::Marshallable)
+      @epid.uuid.should_not be_nil
+      @epid.uuid.should == @pid.uuid
+    end
   end
 end
 
 
-# describe Object, "#_initialize_pids_recursively_d4d309bd!" do
-# 
-#   describe "without #each method" do
-#     before(:each) do
-#       @obj = Object.new
-#       @obj.freeze
-#     end
-#     it "should do nothing when object doesn't respond to #each method" do
-#       lambda { @obj._initialize_pids_recursively_d4d309bd!(nil) }.should_not raise_error
-#     end
-#   end
-#   
-#   describe "with #each method" do
-#     before(:each) do
-#       @obj = Object.new
-#       meth = :_initialize_pids_recursively_d4d309bd!
-#       n = 6
-#       item = mock("item")
-#       item.should_receive(meth).exactly(n).times.with(anything)
-#       class <<@obj
-#         attr_accessor :item
-#         def each
-#           yield(item, item, item)
-#           yield(item, item)
-#           yield(item)
-#         end
-#       end
-#       @obj.item = item
-#     end
-#     it "should traverse each argument of the #each method's block" do
-#       @obj._initialize_pids_recursively_d4d309bd!(nil)
-#     end
-#   end
-# end
+describe Pid::Marshallable do
+  before(:each) do  
+    @cls = Pid::Marshallable
+    @obj = @cls.new("myuuid")
+  end
+  it "should be marshallable" do
+    Marshal.load(Marshal.dump(@obj)).uuid.should == @obj.uuid
+  end
+end
+
 
 # describe "marshal_dump/marshal_load" do
 #   it "should not raise errors" do

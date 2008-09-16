@@ -57,23 +57,22 @@ module EMRPC
 
     module Pid
       def encode_b381b571_1ab2_5889_8221_855dbbc76242(ref)
-        @marshallable_pid ||= MarshallablePid.new(@uuid)
+        @marshallable_pid ||= Marshallable.new(@uuid)
       end
-    end
-    
-    # The purpose of that class is to discard all the class information about Pid before marshalling it.
-    # The only thing we want to pass around is pid.uuid.
-    #
-    class MarshallablePid
-      attr_accessor :uuid
-      def initialize(uuid)
-        @uuid = uuid
-      end
-      # TODO: support unknown pids (maybe instantiate RemotePid instance or ProxyPid or something)
-      def decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
-        host_pid.find_pid(@uuid)
-      end
-    end
-    
+      
+      # The purpose of that class is to discard all the class information about Pid before marshalling it.
+      # The only thing we want to pass around is pid.uuid.
+      #
+      class Marshallable
+        attr_accessor :uuid
+        def initialize(uuid)
+          @uuid = uuid
+        end
+        # TODO: support unknown pids (maybe instantiate RemotePid instance or ProxyPid or something)
+        def decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
+          host_pid.find_pid(@uuid)
+        end
+      end # Marshallable
+    end # Pid
   end # EventedAPI
 end # EMRPC
