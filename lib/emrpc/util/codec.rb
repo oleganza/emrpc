@@ -28,6 +28,35 @@ module EMRPC
         self
       end
     end
+
+    ###############################
     
+    class ::Object
+      def encode_b381b571_1ab2_5889_8221_855dbbc76242(ref)
+        raise "TODO: encode particular objects"
+      end
+    end
+        
+    class ::String
+      def encode_b381b571_1ab2_5889_8221_855dbbc76242(ref)
+        Marshal.dump(self)
+      end
+    end
+
+    module EventedAPI::Pid
+      def marshallable_container
+        @marshallable_container ||= MarshallableContainer.new(@uuid)
+      end
+      def encode_b381b571_1ab2_5889_8221_855dbbc76242(ref)
+        Marshal.dump(self.marshallable_container)
+      end
+    end
+    
+    class MarshallableContainer
+      attr_accessor :uuid
+      def initialize(uuid)
+        @uuid = uuid
+      end
+    end    
   end # EventedAPI
 end # EMRPC

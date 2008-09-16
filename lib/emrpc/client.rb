@@ -9,12 +9,15 @@ module EMRPC
     #
     def initialize(address, options = {})
       @address = address
-      @pid = EventedAPI::ReconnectingPid.new(@address, options)
-      @pid.extend(SinglethreadedClient)
+      @pid = BlockingPid.new(@address, options)
     end
     
     def method_missing(meth, *args, &blk)
       @pid.send(meth, *args)
+    end
+    
+    class BlockingPid < EventedAPI::ReconnectingPid
+      include SinglethreadedClient
     end
     
   end # Client

@@ -13,9 +13,9 @@ module EMRPC
       def send(from, msg, *args)
         begin
           r = @backend.send(msg, *args)
-          from.on_return(self, r)
+          from.send(:on_return, self, r)
         rescue => e
-          from.on_raise(self, e)
+          from.send(:on_raise, self, e)
         end
       end
     end
