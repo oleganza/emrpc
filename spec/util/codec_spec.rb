@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + '/spec_helper'
 include EventedAPI
 
-describe "decode/encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
+describe "Codec with" do
   
   before(:each) do
     @encode_method = :encode_b381b571_1ab2_5889_8221_855dbbc76242
     @decode_method = :decode_b381b571_1ab2_5889_8221_855dbbc76242
-    @dummy_pid = mock("dummy pid")
+    @dummy_pid = mock("dummy pid", :uuid => "dummy-uuid")
     @host_pid = mock("host pid", :find_pid => @dummy_pid)
   end
   
@@ -104,6 +104,7 @@ describe "decode/encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
   describe Pid do
     before(:each) do
       @pid = Pid.new
+      @pid.uuid = @dummy_pid.uuid
       @epid = @pid.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
     end
     
@@ -111,6 +112,18 @@ describe "decode/encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
       @epid.should be_kind_of(Pid::Marshallable)
       @epid.uuid.should_not be_nil
       @epid.uuid.should == @pid.uuid
+    end
+    
+    describe "decoded" do
+      before(:each) do
+        @host_pid.should_receive(:find_pid).once.with(@dummy_pid.uuid).and_return do |uuid|
+          @dummy_pid
+        end
+        @depid = @epid.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+      end
+      it "should be decoded into real pid" do
+        @depid.should == @dummy_pid
+      end
     end
   end
 end
@@ -125,27 +138,3 @@ describe Pid::Marshallable do
     Marshal.load(Marshal.dump(@obj)).uuid.should == @obj.uuid
   end
 end
-
-
-
-# describe Pid, "#_initialize_pids_recursively_d4d309bd" do
-#   before(:each) do
-#     @options = {:uuid => @uuid}
-#     @hosted_rpid = mock('Hosted remote pid', 
-#                         :options => @options, 
-#                         :_connection => @connection)
-#     @host_pid = mock('Host pid')
-#     @host_pid.stub!(:find_pid)
-#     @host_pid.should_receive(:find_pid).once.with(@uuid).and_return(@hosted_rpid)
-#     @rpid._initialize_pids_recursively_d4d309bd!(@host_pid)
-#   end
-#   
-#   it "should set _connection" do
-#     @rpid._connection.should == @connection
-#   end
-#   
-#   it "should keep uuid" do
-#     @rpid.uuid.should == @uuid
-#   end
-# end # _initialize_pids_recursively_d4d309bd!
-
