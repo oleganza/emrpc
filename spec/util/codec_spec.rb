@@ -1,10 +1,11 @@
 require File.dirname(__FILE__) + '/spec_helper'
 include EventedAPI
 
-describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
+describe "decode/encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
   
   before(:each) do
     @encode_method = :encode_b381b571_1ab2_5889_8221_855dbbc76242
+    @decode_method = :decode_b381b571_1ab2_5889_8221_855dbbc76242
     @dummy_pid = mock("dummy pid")
     @host_pid = mock("host pid", :find_pid => @dummy_pid)
   end
@@ -16,12 +17,16 @@ describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
     
     it "should raise error" do
       lambda { @obj.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid) }.should raise_error
+      lambda { @obj.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid) }.should raise_error
     end  
   end
   
   describe "primitive", :shared => true do
     it "should return itself" do
       @obj.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid).should eql(@obj)
+    end
+    it "should return itself" do
+      @obj.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid).should eql(@obj)
     end
   end
 
@@ -33,12 +38,12 @@ describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
       it_should_behave_like "primitive"
     end
   end
-  
-  def encoding_mock(name, n)
+
+  def codec_mock(method, name, n)
     enc = name.upcase.to_sym
     item = mock(name)
-    item.stub!(@encode_method).and_return(enc)
-    item.should_receive(@encode_method).exactly(n).times.with(@host_pid).and_return do |hpid|
+    item.stub!(method).and_return(enc)
+    item.should_receive(method).exactly(n).times.with(@host_pid).and_return do |hpid|
       hpid.should == @host_pid
       enc
     end
@@ -46,28 +51,53 @@ describe "encode_b381b571_1ab2_5889_8221_855dbbc76242 on" do
   end
   
   describe Array do
-    before(:each) do
-      item = encoding_mock("item", 6)
-      @arr = [item, item, [item, item, [item, [[item]] ]]]
-      @encoded = @arr.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+    describe "array codec", :shared => true do
+      it "should encode/decode each item recusively" do
+        item = codec_mock(@method, "item", 6)
+        @arr = [item, item, [item, item, [item, [[item]] ]]]
+        @coded = @arr.__send__(@method, @host_pid)
+        item = :ITEM
+        @coded.should == [item, item, [item, item, [item, [[item]] ]]]
+      end
     end
-    it "should encode each item recusively" do
-      item = :ITEM
-      @encoded.should == [item, item, [item, item, [item, [[item]] ]]]
+    describe "encoding" do
+      before(:each) do
+        @method = @encode_method
+      end
+      it_should_behave_like "array codec"
+    end
+    describe "decoding" do
+      before(:each) do
+        @method = @decode_method
+      end
+      it_should_behave_like "array codec"
     end
   end
-  
+
+
   describe Hash do
-    before(:each) do
-      key   = encoding_mock("key", 3)
-      value = encoding_mock("value", 3)
-      @hash = { key => value, :key => { key => { "str" => value, key => {"str" => 123, :sym => value } } } }
-      @encoded = @hash.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+    describe "hash codec", :shared => true do
+      it "should encode/decode each key and value recusively" do
+        key   = codec_mock(@method, "key", 3)
+        value = codec_mock(@method, "value", 3)
+        @hash = { key => value, :key => { key => { "str" => value, key => {"str" => 123, :sym => value } } } }
+        @coded = @hash.__send__(@method, @host_pid)
+        key = :KEY
+        value = :VALUE
+        @coded.should == { key => value, :key => { key => { "str" => value, key => {"str" => 123, :sym => value } } } }
+      end
     end
-    it "should encode each key and value recusively" do
-      key = :KEY
-      value = :VALUE
-      @encoded.should == { key => value, :key => { key => { "str" => value, key => {"str" => 123, :sym => value } } } }
+    describe "encoding" do
+      before(:each) do
+        @method = @encode_method
+      end
+      it_should_behave_like "hash codec"
+    end
+    describe "decoding" do
+      before(:each) do
+        @method = @decode_method
+      end
+      it_should_behave_like "hash codec"
     end
   end
   
@@ -95,40 +125,6 @@ describe Pid::Marshallable do
     Marshal.load(Marshal.dump(@obj)).uuid.should == @obj.uuid
   end
 end
-
-
-# describe "marshal_dump/marshal_load" do
-#   it "should not raise errors" do
-#     lambda { Marshal.dump(@rpid) }.should_not raise_error
-#     lambda { Marshal.load(Marshal.dump(@rpid)) }.should_not raise_error
-#   end
-#   it "should dump uuid" do
-#     @rpid.marshal_dump.should == @uuid
-#   end
-#   
-#   describe "loaded" do
-#     before(:each) do
-#       rpid = @cls.allocate
-#       rpid.marshal_load(@rpid.marshal_dump)
-#       @rpid = rpid
-#     end
-#     
-#     it "should have uuid" do
-#       @rpid.uuid.should == @uuid
-#     end
-#           
-#     it "should not have _connection" do
-#       @rpid._connection.should be_nil
-#     end
-#     
-#     it_should_behave_like "inspectable"
-#     
-#     it "should have 'NO CONNECTION' text in inspect" do
-#       @rpid.inspect.should =~ /NO CONNECTION/
-#     end
-#     
-#   end # loaded
-# end # marshal
 
 
 

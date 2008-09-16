@@ -30,7 +30,6 @@ module EMRPC
       
       def inspect
         return "#<RemotePid:#{_uid} KILLED>" if @killed
-        return "#<RemotePid:#{_uid} NO CONNECTION!>" unless @_connection
         "#<RemotePid:#{_uid} on #{@_connection.address} connected with local pid #{@_connection.local_pid._uid}>"
       end
             
