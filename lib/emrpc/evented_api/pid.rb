@@ -1,6 +1,6 @@
 require 'uri'
 module EMRPC
-  module EventedAPI
+  
     # Pid is a abbreviation for "process id". Pid represents so-called lightweight process (like in Erlang OTP)
     # Pids can be created, connected, disconnected, spawned, killed. 
     # When pid is created, it exists on its own.
@@ -54,7 +54,7 @@ module EMRPC
       # 1. Connect to the pid.
       # 2. When connection is established, asks for uuid.
       # 3. When uuid is received, triggers callback on the client.
-      # (See EventedAPI::Protocol for details)
+      # (See Protocol for details)
       def connect(addr, conn = nil)
         if addr.is_a?(Pid) && pid = addr
           LocalConnection.new(self, pid)
@@ -179,5 +179,5 @@ module EMRPC
       end
       
     end # Pid
-  end # EventedAPI
+  
 end # EMRPC

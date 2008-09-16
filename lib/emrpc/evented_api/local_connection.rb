@@ -1,5 +1,5 @@
 module EMRPC
-  module EventedAPI
+  
     class LocalConnection
       class Channel
         attr_accessor :conn12, :conn21
@@ -45,5 +45,5 @@ module EMRPC
       end
       
     end # LocalConnection
-  end # EventedAPI
+  
 end # EMRPC

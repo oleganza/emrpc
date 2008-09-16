@@ -1,5 +1,5 @@
 module EMRPC
-  module EventedAPI
+  
     # ReconnectingPid collects all messages in the backlog buffer and tries to reconnect.
     # Calls self.on_raise() with the following exceptions:
     # * 
@@ -103,5 +103,5 @@ module EMRPC
       class TimeoutError      < ReconnectingError; end
       
     end # ReconnectingPid
-  end # EventedAPI
+  
 end # EMRPC

@@ -1,5 +1,5 @@
 module EMRPC
-  module EventedAPI
+  
     class Timer
       include Pid
       def initialize(pid, options)
@@ -21,5 +21,5 @@ module EMRPC
         end
       end # initialize
     end # Timer < Pid
-  end # EventedAPI
+  
 end # EMRPC

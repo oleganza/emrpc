@@ -1,5 +1,5 @@
 module EMRPC
-  module EventedAPI
+  
     module DefaultCallbacks
       # Called with some pid is connected to us (we are the server)
       # or when we connect to another pid (we act as client).
@@ -38,5 +38,5 @@ module EMRPC
       class UndefinedCallback < StandardError; end
       
     end # DefaultCallbacks
-  end # EventedAPI
+  
 end # EMRPC

@@ -1,5 +1,5 @@
 module EMRPC
-  module EventedAPI
+  
     # TODO: allow passing undumped objects throughout the system.
     class ::Object
       def encode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
@@ -74,5 +74,5 @@ module EMRPC
         end
       end # Marshallable
     end # Pid
-  end # EventedAPI
+  
 end # EMRPC

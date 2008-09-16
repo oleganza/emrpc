@@ -5,7 +5,7 @@ module EMRPC
     # * Address of pid to connect to (e.g. "emrpc://localhost:4000/")
     # * Pid to connect to. Use this instead of address to pass some pid for in-process communication.
     # 
-    # You can also pass optional params for EMRPC::EventedAPI::ReconnectingPid.
+    # You can also pass optional params for EMRPC::ReconnectingPid.
     #
     def initialize(address, options = {})
       @address = address
@@ -16,7 +16,7 @@ module EMRPC
       @pid.send(meth, *args)
     end
     
-    class BlockingPid < EventedAPI::ReconnectingPid
+    class BlockingPid < ReconnectingPid
       include SinglethreadedClient
     end
     
