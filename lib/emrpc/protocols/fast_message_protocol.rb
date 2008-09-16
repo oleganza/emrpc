@@ -1,7 +1,7 @@
 module EMRPC
   # Receives data with a 4-byte integer size prefix (network byte order).
   # Underlying protocol must implement #send_data and invoke #receive_data.
-  # User's protocol must call #send_fast_message and listen to #receive_fast_message callback.
+  # User's protocol must call #send_message and listen to #receive_message callback.
   module FastMessageProtocol
     def post_init
       @fmp_size = 0         # if 0, we're waiting for a new message,
