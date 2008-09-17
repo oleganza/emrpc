@@ -4,10 +4,15 @@ require 'emrpc'
 include EMRPC
 
 PORT = 4567
+$DEBUG = 1
 
 if child = fork # parent
   module ServerProtocol
     include FastMessageProtocol
+    def receive_data(data)
+      puts "Server: receive_data -> #{data.inspect}"
+      super(data)
+    end
     def receive_message(data)
       puts "Server: sending #{data.inspect} back..."
       send_message("Re: #{data}")
@@ -27,36 +32,68 @@ if child = fork # parent
   puts "End of server program."
   
 else # child
-  EM::safe_run(:bg) { } 
   
+  EM::safe_run(:bg) do 
+  end
+
   require 'thread'
   
   module ClientProtocol
     include FastMessageProtocol
     
-    def connection_completed
+    def post_init
+      super
+      puts "Client: post_init"
+      @inbox = Queue.new
+      @outbox = Queue.new
+      @consumer_thread = Thread.new(self) do |conn|
+        begin
+          while 1
+            msg = @outbox.shift
+            puts "Client@consumer_thread: msg = #{msg.inspect}"
+            EM.next_tick {
+              puts "Tick!"
+              conn.send_message(msg)
+            }
+            puts "Client@consumer_thread: after send"
+          end
+        rescue => e
+          puts "Client@consumer_thread: EXCEPTION!"
+          puts e
+        end
+      end
+    end
+    
+    def start(mbox)
+      @mbox = mbox
       msg = "Hello!"
-      puts "connection_completed>> sending #{msg.inspect}"
+      puts "Client#connection_completed>> sending #{msg.inspect}"
       
-      result = blocking_send_message(msg)
-      puts "Received: #{result}"
+      non_blocking_send_message(msg)
+      
+      #result = blocking_send_message(msg)
+      #puts "Client#received: #{result}"
     end
     
     def blocking_send_message(msg)
-      puts "blocking_send_message>> Thread.current == #{Thread.current}"
-      @msg = Queue.new
+      puts "Client#blocking_send_message>> Thread.current == #{Thread.current}"
+      @outbox.push(msg)
+      @inbox.pop
+    end
+    
+    def non_blocking_send_message(msg)
+      puts "Client#non_blocking_send_message>> Thread.current == #{Thread.current}"
       send_message(msg)
-      #@msg.shift
     end
     
     def receive_message(data)
-      puts "receive_message>> Thread.current == #{Thread.current}"
-      puts "receive_message>> data == #{data.inspect}"
-      @msg.push(data)
+      puts "Client#receive_message>> Thread.current == #{Thread.current}"
+      puts "Client#receive_message>> data == #{data.inspect}"
+      @mbox.push(data)
     end
     
     def unbind
-      puts "Client disconnected!"
+      puts "Client#unbind"
       exit
     end
   end
@@ -64,6 +101,23 @@ else # child
   sleep 1
   
   conn = EM.connect("localhost", PORT, ClientProtocol)
+  
+  sleep 1
+  
+  @inbox = Queue.new
+  @outbox = Queue.new
+  
+  @acceptor = Thread.new do
+    while 1
+      args = @outbox.pop
+      conn.start(@inbox)
+    end
+  end
+  
+  @outbox.push 1
+  result = @inbox.pop
+  puts "Got result: #{result}"
+  
   
   sleep 5
   
