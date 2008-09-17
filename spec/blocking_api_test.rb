@@ -43,7 +43,6 @@ else # child
     
     def post_init
       super
-      puts "Client: post_init"
       @inbox = Queue.new
       @outbox = Queue.new
       @consumer_thread = Thread.new(self) do |conn|
@@ -51,28 +50,13 @@ else # child
           while 1
             msg = @outbox.shift
             puts "Client@consumer_thread: msg = #{msg.inspect}"
-            EM.next_tick {
-              puts "Tick!"
-              conn.send_message(msg)
-            }
-            puts "Client@consumer_thread: after send"
+            conn.send_message(msg)
           end
         rescue => e
           puts "Client@consumer_thread: EXCEPTION!"
           puts e
         end
       end
-    end
-    
-    def start(mbox)
-      @mbox = mbox
-      msg = "Hello!"
-      puts "Client#connection_completed>> sending #{msg.inspect}"
-      
-      non_blocking_send_message(msg)
-      
-      #result = blocking_send_message(msg)
-      #puts "Client#received: #{result}"
     end
     
     def blocking_send_message(msg)
@@ -89,7 +73,7 @@ else # child
     def receive_message(data)
       puts "Client#receive_message>> Thread.current == #{Thread.current}"
       puts "Client#receive_message>> data == #{data.inspect}"
-      @mbox.push(data)
+      @inbox.push(data)
     end
     
     def unbind
@@ -102,20 +86,7 @@ else # child
   
   conn = EM.connect("localhost", PORT, ClientProtocol)
   
-  sleep 1
-  
-  @inbox = Queue.new
-  @outbox = Queue.new
-  
-  @acceptor = Thread.new do
-    while 1
-      args = @outbox.pop
-      conn.start(@inbox)
-    end
-  end
-  
-  @outbox.push 1
-  result = @inbox.pop
+  result = conn.blocking_send_message("Hello!!!")
   puts "Got result: #{result}"
   
   
