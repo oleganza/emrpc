@@ -8,9 +8,10 @@ shared channel for a number of pids.
 
 FEATURES
 
-* rack http server & http client
-* unix sockets interface
-* REv along with eventmachine backend
+* filters for messages (erlang-like receive() pattern-matching)
 * passing particular objects through TCP
 * resource discovery
 * ring/chord protocol
+* rack http server & http client
+* unix sockets interface
+* REv along with eventmachine backend
