@@ -16,7 +16,7 @@ module EMRPC
       @backends = options[:backend] && [options[:backend]] || options[:backends] or raise "No backends supplied!"
       @pool     = options[:queue] || ::Queue.new
       @timeout  = options[:timeout] || 5
-      @timer    = options[:timer] || Proc.new {|timeout, proc| Thread.new{sleep(timeout); proc.call} }
+      @timer    = options[:timer] || Timers::EVENTED
       @timeout_thread = @timer.call(@timeout, method(:timer_action!))
       @backends.each do |backend|
         @pool.push(backend)
