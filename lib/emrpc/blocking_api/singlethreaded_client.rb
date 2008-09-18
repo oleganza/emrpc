@@ -15,19 +15,28 @@ module EMRPC
     # Initialization method-1
     def initialize(*args, &blk)
       super(*args, &blk)
-      @mbox = Queue.new
+      initialize_singlethreaded_client
     end
     
     # Initialization method-2
     def self.extended(obj)
-      obj.instance_variable_set(:@mbox, Queue.new)
+      obj.initialize_singlethreaded_client
     end
     
-    def send(*args)
-      #p [self, :send, :thread, Thread.current.object_id]
-      #@mbox = mbox = (Thread.current[MBOX] ||= Queue.new)
-      mbox = @mbox
-      super(self, *args)
+    def initialize_singlethreaded_client
+      @outbox = Queue.new
+      @inbox = Queue.new
+      @acceptor = Thread.new(self, @outbox, @inbox) do |rcvr, obox, ibox|
+        while 1
+          args = obox.pop
+          rcvr.send(*args)
+        end
+      end
+    end
+    
+    def blocking_send(*args)
+      @outbox.push([self, *args])
+      mbox = @inbox
       if mbox.shift == :return
         return mbox.shift
       else
@@ -36,15 +45,15 @@ module EMRPC
     end
     
     def on_return(pid, result)
-      #p [self, :on_return, :thread, Thread.current.object_id]
-      @mbox.push(:return)
-      @mbox.push(result)
+      #p [self, :on_return, result]
+      @inbox.push(:return)
+      @inbox.push(result)
     end
     
     def on_raise(pid, exception)
-      #p [self, :on_raise, :thread, Thread.current.object_id]
-      @mbox.push(:raise)
-      @mbox.push(exception)
+      #p [self, :on_raise, exception]
+      @inbox.push(:raise)
+      @inbox.push(exception)
     end
         
   end

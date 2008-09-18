@@ -17,11 +17,11 @@ describe SinglethreadedClient do
   describe "blocking client", :shared => true do
     it "should return" do
       pending @client if String === @client
-      @client.send(:sum, 1, 2, 42).should == 45
+      @client.blocking_send(:sum, 1, 2, 42).should == 45
     end
     it "should raise" do
       pending @client if String === @client
-      lambda { @client.send(:unknown) }.should raise_error(ServerFixture::MyError)
+      lambda { @client.blocking_send(:unknown) }.should raise_error(ServerFixture::MyError)
     end
   end
     
