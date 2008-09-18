@@ -71,7 +71,7 @@ module EMRPC
     
     def disconnected(rpid)
       @rpid = nil
-      connect(@address)
+      connect(@address) unless killed?
     end
     
     def connection_failed(conn)

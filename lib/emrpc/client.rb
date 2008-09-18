@@ -16,6 +16,10 @@ module EMRPC
       @pid.blocking_send(meth, *args)
     end
     
+    def kill_pid
+      @pid.kill
+    end
+    
     class BlockingPid < ReconnectingPid
       include SinglethreadedClient
     end

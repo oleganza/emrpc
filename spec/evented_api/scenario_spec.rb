@@ -26,6 +26,9 @@ describe "Chat" do
         @log << [@name, msg]
         @chat.write(self, @name, msg)
       end
+      def pid_class_name
+        self.class.name
+      end
     end
         
     class Chat
@@ -54,6 +57,9 @@ describe "Chat" do
         cs.each do |c|
           c.send(msg, *args)
         end
+      end
+      def pid_class_name
+        self.class.name
       end
     end
     

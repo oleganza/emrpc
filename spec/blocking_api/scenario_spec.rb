@@ -21,8 +21,8 @@ describe "Blocking API" do
   end
   
   after(:all) do
-    #@client.stop
     @server.stop
+    @client.kill_pid
     sleep 0.1
   end
   
