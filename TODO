@@ -15,3 +15,9 @@ FEATURES
 * rack http server & http client
 * unix sockets interface
 * REv along with eventmachine backend
+
+TASKS
+
+* Benchmark against DRb.
+* Publish gem somewhere.
+* Total world domination.
