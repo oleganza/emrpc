@@ -38,7 +38,7 @@ module EMRPC
     FINISH_ACCEPTOR = Object.new.freeze
     def stop
       @outbox.push(FINISH_ACCEPTOR)
-      @acceptor.kill
+      #@acceptor.kill
     end
     
     def send(meth, *args)
