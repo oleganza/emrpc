@@ -17,7 +17,7 @@ It has also several issues with performance and specs stability (see TODO).
 
 EXAMPLES
 
-You may try out examples using bin/em_console IRB session.
+You may try out examples using bin/emrpc IRB session.
 Just open the console and paste the code.
 
 -------------------------------------------------------------------------------
@@ -32,14 +32,13 @@ HELLO WORLD (BLOCKING API)
     
   server = EMRPC::Server.new(:address => 'emrpc://localhost:4000/', 
                              :backend => HelloWorld.new)
-  emt = Thread.new do 
-    EM::run do
-      server.start
-    end
+  EM::run do
+    server.start
+    sleep 0.2
+    client = EMRPC::Client.new('emrpc://localhost:4000/')
+    puts(client.action == "Hello!") #=> true
   end
-  sleep 0.2
-  client = EMRPC::Client.new('emrpc://localhost:4000/')
-  client.action == "Hello!" #=> true
+  
 
 -------------------------------------------------------------------------------
 
