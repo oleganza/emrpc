@@ -72,6 +72,15 @@ module EMRPC
         def decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
           host_pid.find_pid(@uuid)
         end
+        
+        def inspect
+          "#<Pid::Marshallable:#{_uid}>"
+        end
+
+        # shorter uuid for pretty output
+        def _uid(uuid = @uuid)
+          uuid && uuid[0,6]
+        end
       end # Marshallable
     end # Pid
   

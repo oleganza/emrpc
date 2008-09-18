@@ -29,8 +29,23 @@ module EMRPC
       @acceptor = Thread.new(self, @outbox, @inbox) do |rcvr, obox, ibox|
         while 1
           args = obox.pop
+          break if args == FINISH_ACCEPTOR
           rcvr.send(*args)
         end
+      end
+    end
+    
+    FINISH_ACCEPTOR = Object.new.freeze
+    def stop
+      @outbox.push(FINISH_ACCEPTOR)
+      @acceptor.kill
+    end
+    
+    def send(meth, *args)
+      if meth == :on_return || meth == :on_raise
+        __send__(meth, *args)
+      else
+        super(meth, *args)
       end
     end
     
@@ -45,16 +60,20 @@ module EMRPC
     end
     
     def on_return(pid, result)
-      #p [self, :on_return, result]
+      #p [self, :on_return, [pid, result]]
       @inbox.push(:return)
       @inbox.push(result)
     end
     
     def on_raise(pid, exception)
-      #p [self, :on_raise, exception]
+      #p [self, :on_raise, [pid, exception]]
       @inbox.push(:raise)
       @inbox.push(exception)
     end
-        
+    
+    def pid_class_name
+      "SinglethreadedClient"
+    end
+    
   end
 end

@@ -7,20 +7,27 @@ describe "Blocking API" do
     end
   end
 
-  # before(:all) do
-  #   @server = EMRPC::Server.new(:address => em_addr, 
-  #                               :backend => HelloWorld.new)
-  #   @server.start
-  #   sleep 0.1
-  #   
-  #   @t = Thread.new do
-  #     @client = EMRPC::Client.new(em_addr)
-  #   end
-  #   sleep 0.1
-  # end
+  before(:all) do
+    @server = EMRPC::Server.new(:address => em_addr, 
+                                :backend => HelloWorld.new)
+    @server.start
+    sleep 0.1
+    
+    @client = EMRPC::Client.new(em_addr)
+    
+    #@t = Thread.new do  
+    #end
+    sleep 0.1
+  end
+  
+  after(:all) do
+    #@client.stop
+    @server.stop
+    sleep 0.1
+  end
   
   it "should access remote method" do
-    pending
+    #pending
     @client.action.should == "Hello!"
   end
 end

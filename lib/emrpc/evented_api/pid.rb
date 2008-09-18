@@ -104,7 +104,8 @@ module EMRPC
     end
         
     def find_pid(uuid)
-      ((conn = @connections[uuid]) and conn.remote_pid) or raise "Pid #{_uid} was not found in a #{self}"
+      return self if uuid == @uuid
+      ((conn = @connections[uuid]) and conn.remote_pid) or raise "Pid #{_uid} was not found in a #{self.inspect}"
     end
 
     def marshal_dump
@@ -119,10 +120,14 @@ module EMRPC
     def connection_uuids
       (@connections || {}).keys
     end
-  
+    
+    def pid_class_name
+      "Pid"
+    end
+    
     def inspect
-      return "#<Pid:#{_uid} KILLED>" if @killed
-      "#<Pid:#{_uid} connected to #{connection_uuids.map{|u|_uid(u)}.inspect}>"
+      return "#<#{pid_class_name}:#{_uid} KILLED>" if @killed
+      "#<#{pid_class_name}:#{_uid} connected to #{connection_uuids.map{|u|_uid(u)}.inspect}>"
     end
   
     def ==(other)

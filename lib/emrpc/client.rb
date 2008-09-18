@@ -13,7 +13,7 @@ module EMRPC
     end
     
     def method_missing(meth, *args, &blk)
-      @pid.send(meth, *args)
+      @pid.blocking_send(meth, *args)
     end
     
     class BlockingPid < ReconnectingPid

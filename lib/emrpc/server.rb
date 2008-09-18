@@ -9,5 +9,9 @@ module EMRPC
     def start
       @wrapper.bind(@address)
     end
+    
+    def stop
+      @wrapper.kill
+    end
   end 
 end

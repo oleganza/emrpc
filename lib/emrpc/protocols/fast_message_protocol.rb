@@ -91,7 +91,7 @@ module EMRPC
       puts("FastMessageProtocol: #{yield}")
     end
     # Switch logging off when not in debug mode.
-    unless $DEBUG || ENV['DEBUG']
+    unless ($DEBUG || ENV['DEBUG']) && !($NO_FMP_DEBUG || ENV['NO_FMP_DEBUG'])
       def log
       end
     end
