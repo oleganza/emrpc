@@ -1,6 +1,16 @@
-rack http server & http client
-unix sockets interface
-REv along with eventmachine backend
-passing particular objects through TCP
-resource discovery
-ring/chord protocol
+
+IMPROVEMENTS
+
+* When running $ spec spec/ servers sometimes are not unbinded and some specs fail.
+* SinglethreadedClient creates a messaging thread for each Pid. We should use some kind of 
+shared channel for a number of pids.
+* Try to use Thread.critical instead of Queue.new to achive better performance.
+
+FEATURES
+
+* rack http server & http client
+* unix sockets interface
+* REv along with eventmachine backend
+* passing particular objects through TCP
+* resource discovery
+* ring/chord protocol

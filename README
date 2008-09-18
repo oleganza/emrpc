@@ -9,6 +9,12 @@ Many thanks to:
 * pierlis.com for the table/chair/wifi in Paris.
 
 
+VERSION AND STATUS
+
+This is v0.2 alpha. It is being used in several projects of my own, but is not tested on many interesting cases.
+It has also several issues with performance and specs stability (see TODO).
+
+
 EXAMPLES
 
 You may try out examples using bin/em_console IRB session.
