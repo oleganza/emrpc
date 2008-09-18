@@ -2,6 +2,20 @@
 IMPROVEMENTS
 
 * When running $ spec spec/ servers sometimes are not unbinded and some specs fail.
+ * fixed issue with reconnecting pid.
+ * MultithreadedClient spec fails randomly with 0 timed out threads:
+    'EMRPC::MultithreadedClient with PoolTimeout should raise ThreadTimeout' FAILED
+    expected: > 10,
+         got:   0
+    /Users/olegandreev/Work/emrpc.git/spec/blocking_api/multithreaded_client_spec.rb:49:
+ * Transactions for MultithreadedClient to enable scheduling the same backend for all messages in a transaction.
+   This can be implemented in two ways:
+   1. Blocking: when transaction starts, backend is taken out of the queue while transaction is in process.
+   2. Non-blocking: backend can be rescheduled to other messages while transaction is in process,
+      but when it is needed again, system waits for that particular backend.
+      Non-blocking option might seem more efficient, but it also might be less safe: what if you really should
+      not interleave communication with the backend with foreign messages?
+   
 * SinglethreadedClient creates a messaging thread for each Pid. We should use some kind of 
 shared channel for a number of pids.
 * Try to use Thread.critical instead of Queue.new to achive better performance.
