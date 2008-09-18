@@ -16,24 +16,30 @@ task :spec  => :'specs:spec'
 task :specs => :'specs:spec'
 
 namespace :specs do  
+  
+  def spec_path
+    path = ENV['SPECS_PATH'] || "spec"
+    puts "Using #{path.inspect} path. (See SPECS_PATH environment variable.)"
+    path
+  end
+  
   desc "Run specs"
   task :spec do
-    system("spec spec -c")
+    system("spec #{spec_path} -c")
   end
   
   desc "Runs specs set by SPECS_PATH (default is 'spec') in a loop detecting random errors"
   task :loop do
     def run_spec_iteration(path = "spec", counter = 0)
       r = `spec #{path}`
-      if r =~ /[\A\.PFE][FE][\.PFE\z]/
+      if r =~ /(\A|[.PFE])[FE]/ || r =~ /[FE]([.PFE]|\z)/
         puts r
         counter + 1
       else 
         counter
       end
     end
-    path = ENV['SPECS_PATH'] || "spec"
-    puts "Using #{path.inspect} path. (See SPECS_PATH environment variable.)"
+    path = spec_path
     iters = (ENV['SPECS_ITERS'] || 10_000).to_i
     puts "#{iters} iterations. (See SPECS_ITERS environment variable.)"
     fs = 0
