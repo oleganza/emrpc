@@ -4,7 +4,7 @@ describe "Chat" do
   
   before(:all) do
     
-    class Chatter < Fixtures::Person
+    class Chatterer < Fixtures::Person
       include Pid
       attr_accessor :chat, :notices, :log
       def initialize(*args)
@@ -19,7 +19,6 @@ describe "Chat" do
         @notices << msg
       end
       def receive(from, msg)
-        #p [:chatter, :receive, from, msg]
         @log << [from, msg]
       end
       def write(msg)
@@ -35,25 +34,21 @@ describe "Chat" do
       include Pid
       def initialize
         super
-        @chatters = []
+        @chatterers = []
       end
       def connected(pid)
-        #p [:chat, :connected, pid]
-        @chatters << pid
+        @chatterers << pid
       end
       def disconnected(pid)
-        #p [:chat, :disconnected, pid]
-        @chatters.delete(pid)
-        broadcast(:notice, self, "Chatter #{pid.uuid} disconnected!")
+        @chatterers.delete(pid)
+        broadcast(:notice, self, "Chatterer #{pid.uuid} disconnected!")
       end
       def write(from, name, text)
-        #p [:chat, :write, from, text]
         broadcast(:receive, name, text) {|c| c != from }
       end
       def broadcast(msg, *args, &blk)
-        #p [:chat, :broadcast, @chatters.size, msg, text]
-        cs = @chatters
-        cs = @chatters.select(&blk) if blk
+        cs = @chatterers
+        cs = cs.select(&blk) if blk
         cs.each do |c|
           c.send(msg, *args)
         end
@@ -63,7 +58,7 @@ describe "Chat" do
       end
     end
     
-    class Oleg < Chatter
+    class Oleg < Chatterer
       def initialize
         super(:name => "oleg")
       end
@@ -80,13 +75,12 @@ describe "Chat" do
         end
       end
       def connected(pid)
-        #p [:oleg, :connected, pid]
         super
         write("Hi!")
       end
     end
     
-    class Olga < Chatter
+    class Olga < Chatterer
       def initialize
         super(:name => "olga")
       end
@@ -110,12 +104,9 @@ describe "Chat" do
     
     @oleg.method(:marshal_dump)
     
-    #p [:@oleg, @oleg]
-    #p [:@olga, @olga]
-    
     @chat_addr = em_addr
     @chat = Chat.new
-    #p [:@chat, @chat]
+
     @chat.bind(@chat_addr)
         
     lambda { Marshal.dump(@oleg) }.should_not raise_error
@@ -127,7 +118,7 @@ describe "Chat" do
     end
   end
   
-  it "should produce a conversion" do
+  it "should produce a conversation" do
     sleep 0.5
     
     @oleg.log.should == [
