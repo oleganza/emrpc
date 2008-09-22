@@ -55,16 +55,21 @@ module EMRPC
     # 2. When connection is established, asks for uuid.
     # 3. When uuid is received, triggers callback on the client.
     # (See Protocol for details)
-    def connect(addr)
-      if addr.is_a?(Pid) && pid = addr
+    def connect(addr, connected_callback = nil, disconnected_callback = nil)
+      c = if addr.is_a?(Pid) && pid = addr
         LocalConnection.new(self, pid)
       else
         _em_init(:connect, addr, self)
       end
+      c.connected_callback    = connected_callback
+      c.disconnected_callback = disconnected_callback
+      c
     end
     
-    def disconnect(pid)
-      @connections[pid.uuid].close_connection_after_writing
+    def disconnect(pid, disconnected_callback = nil)
+      c = @connections[pid.uuid]
+      c.disconnected_callback = disconnected_callback if disconnected_callback
+      c.close_connection_after_writing
     end
     
     def kill
@@ -84,13 +89,13 @@ module EMRPC
     # in favor of local connection.
     def connection_established(pid, conn)
       @connections[pid.uuid] ||= conn
-      connected(pid)
+      __send__(conn.connected_callback, pid)
       @connections[pid.uuid].remote_pid || pid # looks like hack, but it is not.
     end
 
     def connection_unbind(pid, conn)
       @connections.delete(pid.uuid)
-      disconnected(pid)
+      __send__(conn.disconnected_callback, pid)
     end
     
     #

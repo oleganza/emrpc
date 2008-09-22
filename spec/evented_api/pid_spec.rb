@@ -67,16 +67,17 @@ describe Pid do
   describe "#connect" do
     before(:all) do
       @options = {:param => :value}
+      @callback = :my_lovely_pid_connected
       @server_addr = em_addr
       @server = @parent.tcp_spawn(@server_addr, @server_class)
       @server.options = @options
       @pid_mock = an_instance_of(RemotePid)
       @conn_mock = an_instance_of(RemoteConnection)
       @parent.should_not_receive(:connection_failed)
-      @parent.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @server_rpid = pid}
+      @parent.should_receive(@callback).once.with(@pid_mock).ordered.and_return{|pid| @server_rpid = pid}
       @server.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @client_rpid = pid}
       
-      @connection = @parent.connect(@server_addr)
+      @connection = @parent.connect(@server_addr, @callback)
       sleep 0.1 # wait until all messages are passed.
     end
     

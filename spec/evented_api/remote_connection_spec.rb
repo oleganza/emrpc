@@ -60,7 +60,8 @@ describe RemoteConnection do
       @connection.address = em_addr.parsed_uri
       @connection.local_pid = @local_pid
       @connection.post_init
-    # server doesn't receive this:  @connection.connection_completed
+      
+      # Important: server doesn't receive this:  @connection.connection_completed
       @connection.receive_marshalled_message([:handshake, @remote_pid.options])
       @rpid = @connection.remote_pid
     end

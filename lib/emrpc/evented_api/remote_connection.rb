@@ -1,8 +1,7 @@
 module EMRPC
   module RemoteConnection
+    include ConnectionMixin
     attr_accessor :address
-    attr_accessor :local_pid
-    attr_accessor :remote_pid
     
     #
     # IMPORTANT: server doesn't trigger #connection_completed callback.

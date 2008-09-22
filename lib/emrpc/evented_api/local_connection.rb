@@ -1,5 +1,8 @@
 module EMRPC
   class LocalConnection
+    include ConnectionMixin
+    
+    # Helper class representing abstract connection channel.
     class Channel
       attr_accessor :conn12, :conn21
       def initialize(pid1, pid2, conn12 = nil)
@@ -15,8 +18,6 @@ module EMRPC
       end
     end
     
-    attr_accessor :local_pid
-    attr_accessor :remote_pid
     attr_accessor :channel
     
     def initialize(local_pid, remote_pid, channel = nil)
