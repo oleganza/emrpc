@@ -8,6 +8,7 @@ module EMRPC
       _common_init
       @_connection = conn
       @uuid        = options[:uuid]
+      @options     = options
     end
 
     def method_missing(*args)

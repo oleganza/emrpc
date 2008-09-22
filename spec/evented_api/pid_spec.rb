@@ -66,13 +66,16 @@ describe Pid do
 
   describe "#connect" do
     before(:all) do
+      @options = {:param => :value}
       @server_addr = em_addr
       @server = @parent.tcp_spawn(@server_addr, @server_class)
+      @server.options = @options
       @pid_mock = an_instance_of(RemotePid)
       @conn_mock = an_instance_of(RemoteConnection)
       @parent.should_not_receive(:connection_failed)
       @parent.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @server_rpid = pid}
       @server.should_receive(:connected).once.with(@pid_mock).ordered.and_return{|pid| @client_rpid = pid}
+      
       @connection = @parent.connect(@server_addr)
       sleep 0.1 # wait until all messages are passed.
     end
@@ -92,6 +95,11 @@ describe Pid do
       @server_rpid.should be_kind_of(RemotePid)
       @client_rpid.uuid.should == @parent.uuid
       @server_rpid.uuid.should == @server.uuid
+    end
+    
+    it "should send options thru handshake" do
+      @client_rpid.options.should == @parent.options
+      @server_rpid.options.should == @server.options
     end
     
     describe "and #disconnect" do

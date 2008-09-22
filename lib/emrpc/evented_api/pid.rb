@@ -7,7 +7,7 @@ module EMRPC
   # When pid is killed, all its connections are unbinded.
   
   module Pid
-    attr_accessor :uuid, :connections, :killed
+    attr_accessor :uuid, :connections, :killed, :options
     attr_accessor :_em_server_signature, :_protocol, :_bind_address
     include DefaultCallbacks
     
@@ -28,6 +28,7 @@ module EMRPC
     
     def initialize(*args, &blk)
       @uuid = _random_uuid
+      @options = {:uuid => @uuid}
       _common_init
       super(*args, &blk) rescue nil
     end
@@ -94,9 +95,11 @@ module EMRPC
     
     #
     # Util
-    #            
-    def options
-      {:uuid => @uuid}
+    # 
+    def options=(opts)
+      @options = opts
+      @options[:uuid] = @uuid
+      @options
     end
     
     def killed?
