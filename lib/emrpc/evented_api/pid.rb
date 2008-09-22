@@ -10,6 +10,7 @@ module EMRPC
     attr_accessor :uuid, :connections, :killed, :options
     attr_accessor :_em_server_signature, :_protocol, :_bind_address
     include DefaultCallbacks
+    include ProtocolMapper
     
     # FIXME: doesn't override user-defined callbacks
     include DebugPidCallbacks if $DEBUG 
@@ -48,7 +49,11 @@ module EMRPC
     def bind(addr)
       raise "Pid is already binded!" if @_em_server_signature
       @_bind_address = addr.parsed_uri
-      @_em_server_signature = _em_init(:start_server, @_bind_address, self)
+      this = self
+      @_em_server_signature = make_server_connection(@_bind_address, _protocol)  do |conn|
+        conn.local_pid = this
+        conn.address = addr
+      end
     end
   
     # 1. Connect to the pid.
@@ -59,7 +64,11 @@ module EMRPC
       c = if addr.is_a?(Pid) && pid = addr
         LocalConnection.new(self, pid)
       else
-        _em_init(:connect, addr, self)
+        this = self
+        make_client_connection(addr, _protocol)  do |conn|
+          conn.local_pid = this
+          conn.address = addr
+        end
       end
       c.connected_callback    = connected_callback
       c.disconnected_callback = disconnected_callback
@@ -152,13 +161,13 @@ module EMRPC
     #
     
     # common start_server/connect pattern for eventmachine.
-    def _em_init(method, addr, pid)
-      addr = addr.parsed_uri
-      EventMachine.__send__(method, addr.host, addr.port, _protocol) do |conn|
-        conn.local_pid = pid
-        conn.address = addr
-      end
-    end
+    # def _em_init(method, addr, pid)
+    #   addr = addr.parsed_uri
+    #   EventMachine.__send__(method, addr.host, addr.port, _protocol) do |conn|
+    #     conn.local_pid = pid
+    #     conn.address = addr
+    #   end
+    # end
     
     def _protocol
       @_protocol ||= self.__send__(:_protocol=, RemoteConnection)
