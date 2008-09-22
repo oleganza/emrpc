@@ -40,9 +40,9 @@ module ::EventMachine
       
       def stop_server(s, *args, &blk)
         port = @signs[s]
-        sleep 0.1 if Time.now - @ports[port][1] < 1
+        sleep 0.1 if port && Time.now - @ports[port][1] < 1
         r = @em.non_queued_stop_server(s, *args, &blk)
-        @ports[port] = [s, Time.now]
+        @ports[port] = [s, Time.now] if port
         r
       end
     end

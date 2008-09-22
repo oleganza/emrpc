@@ -8,6 +8,8 @@ describe "Blocking API" do
   end
 
   before(:all) do
+    em_addr = "emrpc+unix:///tmp/emrpc-test.sock"
+    
     @server = EMRPC::Server.new(:address => em_addr, 
                                 :backend => HelloWorld.new)
     @server.start
