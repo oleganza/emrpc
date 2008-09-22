@@ -4,15 +4,25 @@ asynchronous erlang-like interface along with blocking synchronous interface.
 
 Author: Oleg Andreev <oleganza@gmail.com>
 
-Many thanks to:
-* linkfeed.ru for the real-world EMRPC-based application.
-* pierlis.com for the table/chair/wifi in Paris.
+
+FEATURES
+
+0. Object-oriented evented API based on lightweight processes called Pids.
+1. Automatically reconnecting clients (blocking and evented).
+2. Support for both TCP and Unix sockets. (Use "emrpc://host:port" or "unix:///path/to/my.sock")
+3. Modularity and good specs coverage: EMRPC is easy to learn, extend and optimize.
 
 
 VERSION AND STATUS
 
-This is v0.2 alpha. It is being used in several projects of my own, but is not tested on many interesting cases.
-It has also several issues with performance and specs stability (see TODO).
+This is v0.3 alpha. It is being used in several projects of my own, but is not tested on many interesting cases.
+It has also several issues with performance and specs stability (see TODO file).
+
+
+THANKS TO
+
+* linkfeed.ru for the real-world EMRPC-based application.
+* pierlis.com for the table/chair/wifi in Paris.
 
 
 EXAMPLES
