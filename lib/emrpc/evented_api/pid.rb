@@ -55,7 +55,7 @@ module EMRPC
     # 2. When connection is established, asks for uuid.
     # 3. When uuid is received, triggers callback on the client.
     # (See Protocol for details)
-    def connect(addr, conn = nil)
+    def connect(addr)
       if addr.is_a?(Pid) && pid = addr
         LocalConnection.new(self, pid)
       else

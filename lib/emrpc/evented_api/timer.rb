@@ -9,15 +9,15 @@ module EMRPC
       @callback = options[:callback] || :on_timer
       if @interval
         EventMachine::PeriodicTimer.new(@interval) do
-          @pid.send(@callback)
+          @pid.__send__(@callback)
         end
       else
         @delay or raise "Options :delay or :interval are missing!"
         EventMachine::Timer.new(@delay) do
-          @pid.send(@callback)
+          @pid.__send__(@callback)
           kill
         end
       end
     end # initialize
-  end # Timer < Pid
+  end # Timer
 end # EMRPC
