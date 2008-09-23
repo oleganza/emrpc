@@ -4,7 +4,8 @@ describe SinglethreadedClient do
 
   module ServerFixture
     class MyError < StandardError; end
-    def send(from, meth, *args, &blk)
+    def send(send_meth, from, meth, *args, &blk)
+      send_meth.should == :send
       if meth == :sum
         from.on_return(self, args.inject{|a,b|a+b})
       else

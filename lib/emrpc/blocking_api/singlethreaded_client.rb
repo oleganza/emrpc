@@ -5,7 +5,7 @@ module EMRPC
   # Example:
   #   class BlockingPid
   #     include Pid
-  #     include BlockingClient
+  #     include SinglethreadedClient
   #   end
   #
   #
@@ -30,6 +30,7 @@ module EMRPC
         while 1
           args = obox.pop
           break if args == FINISH_ACCEPTOR
+          #p [rcvr, :send, args, :ACCEPTOR]
           rcvr.send(*args)
         end
       end
@@ -38,10 +39,10 @@ module EMRPC
     FINISH_ACCEPTOR = Object.new.freeze
     def stop
       @outbox.push(FINISH_ACCEPTOR)
-      #@acceptor.kill
     end
     
-    def send(meth, *args)
+    def xsend(meth, *args)
+      #p [self, :send, meth, *args]
       if meth == :on_return || meth == :on_raise
         __send__(meth, *args)
       else
@@ -50,7 +51,8 @@ module EMRPC
     end
     
     def blocking_send(*args)
-      @outbox.push([self, *args])
+      #p [self, :blocking_send, *args]
+      @outbox.push([:send, self, *args])
       mbox = @inbox
       if mbox.shift == :return
         return mbox.shift
