@@ -30,7 +30,6 @@ module EMRPC
         while 1
           args = obox.pop
           break if args == FINISH_ACCEPTOR
-          #p [rcvr, :send, args, :ACCEPTOR]
           rcvr.send(*args)
         end
       end
@@ -41,17 +40,7 @@ module EMRPC
       @outbox.push(FINISH_ACCEPTOR)
     end
     
-    def xsend(meth, *args)
-      #p [self, :send, meth, *args]
-      if meth == :on_return || meth == :on_raise
-        __send__(meth, *args)
-      else
-        super(meth, *args)
-      end
-    end
-    
     def blocking_send(*args)
-      #p [self, :blocking_send, *args]
       @outbox.push([:send, self, *args])
       mbox = @inbox
       if mbox.shift == :return
@@ -62,13 +51,11 @@ module EMRPC
     end
     
     def on_return(pid, result)
-      #p [self, :on_return, [pid, result]]
       @inbox.push(:return)
       @inbox.push(result)
     end
     
     def on_raise(pid, exception)
-      #p [self, :on_raise, [pid, exception]]
       @inbox.push(:raise)
       @inbox.push(exception)
     end
@@ -77,5 +64,5 @@ module EMRPC
       "SinglethreadedClient"
     end
     
-  end
-end
+  end # SinglethreadedClient
+end # EMRPC

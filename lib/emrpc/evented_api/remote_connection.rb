@@ -49,9 +49,6 @@ module EMRPC
     
     def receive_regular_message(msg)
       lpid = @local_pid
-      #p [:receive_regular_message, lpid, msg]
-      # TODO: maybe we should use __send__ here? 
-      #p [:CONN, "lpid.send", (msg.decode_b381b571_1ab2_5889_8221_855dbbc76242(lpid))]
       lpid.__send__(*(msg.decode_b381b571_1ab2_5889_8221_855dbbc76242(lpid)))
     end
     

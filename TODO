@@ -27,7 +27,7 @@ FEATURES
 * resource discovery
 * ring/chord protocol
 * rack http server & http client
-* unix sockets interface
+* Async DNS support
 * REv along with eventmachine backend
 
 TASKS
