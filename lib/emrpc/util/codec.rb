@@ -3,10 +3,37 @@ module EMRPC
     # TODO: allow passing undumped objects throughout the system.
     class ::Object
       def encode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
-        raise "TODO: encode particular objects with recording references in the host_pid"
+        # raise "TODO: encode particular objects with recording references in the host_pid"
+        # Use Marshal.dump by default
+        self
       end
       def decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
-        raise "TODO: decode particular objects with retrieving references from the host_pid"
+        # raise "TODO: decode particular objects with retrieving references from the host_pid"
+        self
+      end
+    end
+    
+    module PidVariables
+      class Container
+        attr_accessor :cls, :ivars
+        def initialize(cls, ivars)
+          @cls = cls
+          @ivars = ivars
+        end
+        def decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
+          obj = @cls.allocate
+          @ivars.inject(obj) do |obj, (k,v)|
+            obj.instance_variable_set(k, v.decode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid))
+            obj
+          end
+        end
+      end
+      def encode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)
+        ivars = instance_variables.map do |iv| 
+          v = instance_variable_get(iv)
+          [iv, v.encode_b381b571_1ab2_5889_8221_855dbbc76242(host_pid)]
+        end
+        Container.new(self.class, ivars)
       end
     end
     

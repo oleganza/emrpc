@@ -14,10 +14,54 @@ describe "Codec with" do
       @obj = Object.new
     end
     
-    it "should raise error" do
-      lambda { @obj.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid) }.should raise_error
-      lambda { @obj.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid) }.should raise_error
-    end  
+    it "should return self" do
+      @obj.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid).should eql(@obj)
+      @obj.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid).should eql(@obj)
+    end
+  end
+  
+  describe PidVariables do
+    before(:each) do
+      ::MyClass = Class.new do 
+        include PidVariables
+        attr_accessor :name, :pid
+      end
+      @pid = Pid.new
+      @obj = ::MyClass.new
+      @obj.name = "Oleg"
+      @obj.pid = @pid
+      @encoded = @obj.encode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+    end
+    
+    after(:each) do
+      Object.send(:remove_const, :MyClass) if defined?(::MyClass)
+    end
+    
+    it "should encode ivars" do
+      encoded = @encoded
+      encoded.should be_kind_of(PidVariables::Container)
+      encoded.cls.should == @obj.class
+      name_pair, pid_pair = encoded.ivars.sort_by{|a|a[0]}
+      name_pair.should == ["@name", "Oleg"]
+      pid_pair[0].should == "@pid"
+      pid_pair[1].should be_kind_of(Pid::Marshallable)
+      pid_pair[1].uuid.should == @obj.pid.uuid
+    end
+
+    describe PidVariables::Container do
+      before(:each) do
+        @host_pid.should_receive(:find_pid).once.with(@pid.uuid).and_return do |uuid|
+          @pid
+        end
+        @decoded = @encoded.decode_b381b571_1ab2_5889_8221_855dbbc76242(@host_pid)
+      end
+      
+      it "should decode ivars" do
+        @decoded.class.should == @obj.class
+        @decoded.name.should == @obj.name
+        @decoded.pid.should == @obj.pid
+      end
+    end
   end
   
   describe "primitive", :shared => true do
