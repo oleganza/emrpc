@@ -160,15 +160,6 @@ module EMRPC
     # Private, but accessible from outside methods are prefixed with underscore.
     #
     
-    # common start_server/connect pattern for eventmachine.
-    # def _em_init(method, addr, pid)
-    #   addr = addr.parsed_uri
-    #   EventMachine.__send__(method, addr.host, addr.port, _protocol) do |conn|
-    #     conn.local_pid = pid
-    #     conn.address = addr
-    #   end
-    # end
-    
     def _protocol
       @_protocol ||= self.__send__(:_protocol=, RemoteConnection)
     end
