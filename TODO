@@ -1,6 +1,15 @@
 
 IMPROVEMENTS
 
+* Rev: 
+  * Rev::Server#on_connection: on_connect is called before @block.call: 
+    this is not how EM behaves. The order is crucial because we would like to 
+    pass some configuration with @block and use it inside on_connect/connection_completed callback.
+    TODO: suggest a patch to Toni Arciery.
+    
+  * lib/rev/loop.rb:60 typo: EVFLAG_NOENV should be used instead of EVFLAG_NOEV
+    TODO: suggest a patch to Toni Arciery.
+
 * When running $ spec spec/ servers sometimes are not unbinded and some specs fail.
  * fixed issue with reconnecting pid.
  * MultithreadedClient spec fails randomly with 0 timed out threads:
