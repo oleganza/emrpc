@@ -135,6 +135,16 @@ Rake::GemPackageTask.new(spec) do |package|
   package.gem_spec = spec
 end
 
+desc "Generate *.gemspec file"
+task :gemspec do
+  gemspec = "spec = " + spec.to_ruby
+  path = File.join(File.expand_path(File.dirname(__FILE__)), "emrpc.gemspec")
+  puts %{Writing "#{path}"}
+  File.open(path, "w") do |f| 
+    f.write(gemspec)
+  end
+end
+
 desc "Run :package and install the resulting .gem"
 task :install => :package do
   sh %{#{sudo} gem install #{install_home} --local pkg/#{GEM_NAME}-#{GEM_VERSION}.gem --no-rdoc --no-ri}
