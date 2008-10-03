@@ -48,9 +48,6 @@ describe Subscriptions do
   
   
   %{
-    
     TODO: more scenarios with special DSL
-    
-    
   }
 end

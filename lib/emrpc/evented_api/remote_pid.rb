@@ -20,6 +20,7 @@ module EMRPC
       if cmd == :kill
         return if @killed
         @killed = true
+        @_connection.close_connection_after_writing
       end
       @_connection.send_raw_message(args)
     end

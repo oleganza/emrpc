@@ -32,7 +32,7 @@ module EMRPC
           unsubscribe(event, pid, callback_name)
         end
       else
-        subscriptions = @subscriptions[event_name] or return
+        subscriptions = @subscriptions[event_name] or return self
         subscriptions.delete_if do |pair|
           pd, cb = pair
           (pd == pid || !pid) && (cb == callback_name || !callback_name)

@@ -46,6 +46,10 @@ module EMRPC
       pid
     end
     
+    def thread_spawn(cls, *args, &blk)
+      # TODO: think about thread-safe passing messages back to sender.
+    end
+    
     def bind(addr)
       raise "Pid is already binded!" if @_em_server_signature
       @_bind_address = addr.parsed_uri
