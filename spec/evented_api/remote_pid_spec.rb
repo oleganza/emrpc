@@ -45,6 +45,7 @@ describe RemotePid do
   describe "#kill" do
     before(:each) do
       @connection.should_receive(:send_raw_message).once.with([:kill])
+      @connection.should_receive(:close_connection_after_writing).once
       @rpid.kill
     end
     

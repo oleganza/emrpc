@@ -1,10 +1,10 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-describe Subscriptions do
+describe Subscribable do
   extend MockDescribe
   
   before(:all) do
-    @cls = Class.new { include Subscriptions }
+    @cls = Class.new { include Subscribable }
     @cafe = @cls.new
   end
 

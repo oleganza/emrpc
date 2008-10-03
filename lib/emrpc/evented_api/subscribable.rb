@@ -4,7 +4,7 @@ module EMRPC
   # * #unsubscribe(:event_name, rcvr[, :callback]) (if no callback is defined, all callbacks for the current pid are removed)
   # * #notify_subscribers(:event_name)
   # 
-  module Subscriptions
+  module Subscribable
     def initialize(*args, &blk)
       super(*args, &blk)
       @subscriptions = Hash.new # event_name -> array of [pid, callback]
