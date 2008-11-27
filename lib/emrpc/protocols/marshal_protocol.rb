@@ -7,18 +7,18 @@ module EMRPC
     #  2. include MarshalProtocol.new(YAML)
     #  3. include MarshalProtocol.new(JSON)
     def self.new(marshal_const)
-      const_name = marshal_const.name
       mod = Module.new
-      mod.class_eval <<-EOF, __FILE__, __LINE__
+      mod.module_eval <<-EOF, __FILE__, __LINE__
         def send_marshalled_message(msg)
-          send_message(#{const_name}.dump(msg))
+          send_message(MarshalBackend.dump(msg))
         end
         def receive_message(msg)
-          receive_marshalled_message(#{const_name}.load(msg))
+          receive_marshalled_message(MarshalBackend.load(msg))
         rescue Exception => e
           rescue_marshal_error(e)
         end
       EOF
+      mod.const_set(:MarshalBackend, marshal_const)
       mod
     end
     

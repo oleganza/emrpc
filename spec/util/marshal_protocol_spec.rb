@@ -48,3 +48,20 @@ end
     it_should_behave_like "Generic MarshalProtocol"
   end
 end
+
+describe MarshalProtocol, "with some object" do
+  before(:each) do
+    interface = Object.new
+    def interface.load(x)
+      Marshal.load(x)
+    end
+    def interface.dump(x)
+      Marshal.dump(x)
+    end
+    # FIXME: fixture containing 3.1415 may cause floating point issues.
+    @msg = ["Hello", {"a" => "b", "arr" => [true, false, nil]}, 1, 3.1415]
+    @instance = create_marshal_protocol_instance(interface)
+  end
+  it_should_behave_like "Generic MarshalProtocol"
+end
+
