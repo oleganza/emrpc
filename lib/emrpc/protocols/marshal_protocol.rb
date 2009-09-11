@@ -1,7 +1,6 @@
 module EMRPC
   module MarshalProtocol
     # Creates new protocol using specified dump/load interface.
-    # Note: interface must be a constant! See examples below.
     # Examples:
     #  1. include MarshalProtocol.new(Marshal)
     #  2. include MarshalProtocol.new(YAML)
